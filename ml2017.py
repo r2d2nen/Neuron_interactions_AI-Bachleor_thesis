@@ -7,6 +7,9 @@ from matplotlib import pyplot as plt
 import sys
 import argparse
 
+#import project files
+from gaussfit import *
+
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
@@ -78,19 +81,6 @@ def get_nsopt_observable():
     nsopt.terminate()
 
     return nsopt_observables
-
-def get_gp_model(X,Y):
-    """Return a GPR-model of X,Y(X) with a RBF kernel."""
-    kernel = RBF(input_dim=1., variance=1., lengthscale=1.)
-    model = GPRegression(X, Y, kernel)
-    return model
-
-def plot_gp(model):
-    """Plot the GP-model"""
-    model.plot()
-    model.optimize()
-    model.plot()
-    plt.show()
 
 if __name__ == '__main__':
     main()
