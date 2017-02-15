@@ -8,7 +8,7 @@ import sys
 import argparse
 
 #import project files
-from gaussfit import *
+from gaussfit import Gaussfit
 
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
@@ -31,9 +31,12 @@ def main():
     else:
         X = np.random.uniform(-3.,3.,(20,1))
         Y = np.sin(X) + np.random.randn(20,1)*0.03
-        
-    model = get_gp_model(X,Y)
-    plot_gp(model)
+    
+    Gauss = Gaussfit()
+    Gauss.set_gp_kernel()
+    Gauss.populate_gp_model(X, Y)
+    Gauss.optimize()
+    Gauss.plot()
 
 def get_nsopt_observable():
     pot = 'N2LOsim'

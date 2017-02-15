@@ -4,24 +4,39 @@ from GPy.models import GPRegression
 from matplotlib import pyplot as plt
 
 #Default values for the GP
-DEFAULTS = {'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
+DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
 
-def get_gp_model(X, Y, in_dim=None, variance=None, lengthscale=None):
-    """Return a GPR-model of X,Y(X) with a RBF kernel."""
-    if not in_dim:
-        in_dim = DEFAULTS['input_dim']
-    if not variance:
-        variance= DEFAULTS['variance']
-    if not lengthscale:
-        lengthscale = DEFAULTS['lengthscale']
+class Gaussfit:
 
-    kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
-    model = GPRegression(X, Y, kernel)
-    return model
+    def __init__(self):
+        '''Initialize a gaussfit object '''
+        self.kernel = None
+        self.model = None
+    
+    def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
+        '''Sets the kernel of this Gaussfit'''
+        #if not kernel:
+        #    kernel = DEFAULTS['kernel']
+        #if not in_dim:
+        #    in_dim = DEFAULTS['input_dim']
+        #if not variance:
+        #    variance= DEFAULTS['variance']
+        #if not lengthscale:
+        #    lengthscale = DEFAULTS['lengthscale']
+        '''Need to manually add the different kernels'''
+        if kernel == 'RBF':
+            self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
+    
 
-def plot_gp(model):
-    """Plot the GP-model"""
-    model.plot()
-    model.optimize()
-    model.plot()
-    plt.show()
+    def populate_gp_model(self, X, Y):
+        '''Creates a model based on given data and kernel''' 
+        self.model = GPRegression(X, Y, self.kernel)
+
+    def optimize(self):
+        '''Optimize the model. TODO: add verbose'''
+        self.model.optimize()
+    
+    def plot(self):
+        """Plot the GP-model"""
+        self.model.plot()
+        plt.show()
