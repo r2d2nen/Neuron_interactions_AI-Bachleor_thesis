@@ -16,7 +16,7 @@ from gaussfit import Gaussfit
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
 
-def readIni(args):
+def read_ini(args):
 
     # read .ini file
     config = StringIO.StringIO()
@@ -77,7 +77,7 @@ def main():
     group.add_argument("-n", "--nsopt", action="store_true", help="Use nsopt calculation for GP")
     args = parser.parse_args()
 
-    X = readIni(args)
+    X = read_ini(args)
     
     if args.nsopt:
         Y = get_nsopt_observable()
