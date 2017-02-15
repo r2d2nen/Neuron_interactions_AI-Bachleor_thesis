@@ -9,6 +9,9 @@ from matplotlib import pyplot as plt
 import sys
 import argparse
 
+#import project files
+from gaussfit import Gaussfit
+
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
@@ -82,9 +85,12 @@ def main():
         Y = Y.reshape(len(Y),1)
     else:
         Y = np.sin(X) + np.random.randn(20,1)*0.03
-        
-    model = get_gp_model(X,Y)
-    plot_gp(model)
+    
+    Gauss = Gaussfit()
+    Gauss.set_gp_kernel()
+    Gauss.populate_gp_model(X, Y)
+    Gauss.optimize()
+    Gauss.plot()
 
 def get_nsopt_observable():
     pot = 'N2LOsim'
@@ -125,25 +131,13 @@ def get_nsopt_observable():
 
     evaluate = 'include evaluate_xsec.ini'
     # evaluate = 'include evaluate_ncsm.ini'
-    print('hej1')
     nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
-
     nsopt_observables = nsopt.calculate_observable(X_samples[0,:])
-    print nsopt_observables
+    #print nsopt_observables
+
+    nsopt.terminate()
 
     return nsopt_observables
-def get_gp_model(X,Y):
-    """Return a GPR-model of X,Y(X) with a RBF kernel."""
-    kernel = RBF(input_dim=1., variance=1., lengthscale=1.)
-    model = GPRegression(X, Y, kernel)
-    return model
-
-def plot_gp(model):
-    """Plot the GP-model"""
-    model.plot()
-    model.optimize()
-    model.plot()
-    plt.show()
 
 if __name__ == '__main__':
     main()
