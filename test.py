@@ -71,13 +71,14 @@ def get_nsopt_observable():
 
     evaluate = 'include evaluate_xsec.ini'
     # evaluate = 'include evaluate_ncsm.ini'
-    print('hej1')
     nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
-
     nsopt_observables = nsopt.calculate_observable(X_samples[0,:])
-    print nsopt_observables
+    #print nsopt_observables
+
+    nsopt.terminate()
 
     return nsopt_observables
+
 def get_gp_model(X,Y):
     """Return a GPR-model of X,Y(X) with a RBF kernel."""
     kernel = RBF(input_dim=1., variance=1., lengthscale=1.)
