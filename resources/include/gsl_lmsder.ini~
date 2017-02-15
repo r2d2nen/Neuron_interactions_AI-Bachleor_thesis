@@ -1,0 +1,6 @@
+program_mode=gsl_lmsder
+lmsder.max_iter=100
+lmsder.epsabs=1e-12
+lmsder.epsrel=1e-12
+lmsder.epsabs_der=1e-12
+include gradient_optimization_parameters.ini

@@ -1,0 +1,17 @@
+database_file=none
+process_data_record.print_record=yes
+database_file=none
+program_mode=single
+observable=SGT
+tz_min=0
+tz_max=0
+Elist=1 90
+#Emin=50.06
+#Emax=50.06.00
+Esteps=290
+thmin=1.0
+thmax=180.0
+thsteps=180
+L_min=0
+L_max=8
+

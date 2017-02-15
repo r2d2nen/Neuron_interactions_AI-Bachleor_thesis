@@ -1,0 +1,33 @@
+tz_min=-2
+tz_max=2
+
+ncsm.H3 = yes
+ncsm.He3 = yes
+ncsm.He4 = yes
+ncsm.H3_He3.beta_decay=no
+
+ncsm.3nf_chiral_order = N3LO
+ncsm.3b.include_NNN = no
+ncsm.4b.include_NNN = no
+
+ncsm.H3.NNN_expectation_values  = no
+ncsm.He3.NNN_expectation_values = no
+ncsm.He4.NNN_expectation_values = no
+
+ncsm.3b.Nmax_series=yes
+ncsm.4b.Nmax_series=yes
+
+ncsm.H3.bound_state = yes
+ncsm.H3.radius = yes
+
+ncsm.He3.bound_state = yes
+ncsm.He3.radius = yes
+
+ncsm.He4.bound_state = yes
+ncsm.He4.radius = yes
+
+
+
+
+
+
