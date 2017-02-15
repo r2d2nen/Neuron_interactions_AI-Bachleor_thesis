@@ -1,4 +1,6 @@
 from resources import python_nsopt
+import ConfigParser
+import StringIO
 import numpy as np
 import os
 from GPy.kern import RBF
@@ -11,6 +13,59 @@ import argparse
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
 
+def readIni(args):
+
+    # read .ini file
+    config = StringIO.StringIO()
+    config.write('[dummysection]\n')
+    config.write(open('resources/evaluate_xsec.ini').read())
+    config.seek(0, os.SEEK_SET)
+
+    cp = ConfigParser.ConfigParser()
+    cp.readfp(config)
+
+    observable = cp.get('dummysection','observable')
+
+    Elist = None
+    
+    try:
+        Elist = cp.get('dummysection','Elist')
+        print type(Elist)
+        print Elist
+        Elist = np.fromstring(Elist,sep=" ")
+        print type(Elist)
+        print Elist
+        Elist = Elist[1:]
+        print Elist
+    except ConfigParser.NoOptionError:
+        print "No Elist entry"
+
+    if Elist is None:
+        try:
+            Emin = cp.getfloat('dummysection','Emin')
+            Emax = cp.getfloat('dummysection','Emax')
+            Esteps = cp.getint('dummysection','Esteps')
+        except ConfigParser.NoOptionError:
+            print "No entries for Emin, Emax or Esteps"
+
+    if args.nsopt:
+        if observable == "SGT":
+            if Elist is not None:
+                X = Elist
+                X = X.reshape(len(Elist),1)
+                print X
+                print X.shape
+                print "X from Elist"
+            else:
+                X = np.linspace(Emin,Emax,Esteps)
+                X = X.reshape(Esteps, 1)
+                print "X from Emin, Emax, Esteps"
+    else:
+        X = np.random.uniform(-3.,3.,(20,1))
+
+    
+    return X
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-v", "--verbosity", action="store_true", help="Show data output")
@@ -19,14 +74,13 @@ def main():
     group.add_argument("-n", "--nsopt", action="store_true", help="Use nsopt calculation for GP")
     args = parser.parse_args()
 
+    X = readIni(args)
+    
     if args.nsopt:
         Y = get_nsopt_observable()
         Y = np.trim_zeros(Y)
-        Y = Y.reshape(100,1)
-        X = np.linspace(1., 290., 100)
-        X = X.reshape(100,1)
+        Y = Y.reshape(len(Y),1)
     else:
-        X = np.random.uniform(-3.,3.,(20,1))
         Y = np.sin(X) + np.random.randn(20,1)*0.03
         
     model = get_gp_model(X,Y)
