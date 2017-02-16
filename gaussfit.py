@@ -15,17 +15,11 @@ class Gaussfit:
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
         '''Sets the kernel of this Gaussfit'''
-        #if not kernel:
-        #    kernel = DEFAULTS['kernel']
-        #if not in_dim:
-        #    in_dim = DEFAULTS['input_dim']
-        #if not variance:
-        #    variance= DEFAULTS['variance']
-        #if not lengthscale:
-        #    lengthscale = DEFAULTS['lengthscale']
         '''Need to manually add the different kernels'''
         if kernel == 'RBF':
             self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
+        else:
+            print 'Kernel not recognized'
     
 
     def populate_gp_model(self, X, Y):
@@ -34,9 +28,11 @@ class Gaussfit:
 
     def optimize(self):
         '''Optimize the model. TODO: add verbose'''
-        self.model.optimize()
+        '''Something worng, model doesn't always converge'''
+        self.model.optimize(messages=True)
     
     def plot(self):
-        """Plot the GP-model"""
-        self.model.plot()
+        '''Plot the GP-model'''
+        '''Plot limits only for 1D-case'''
+        self.model.plot(plot_limits=[0, 290])
         plt.show()
