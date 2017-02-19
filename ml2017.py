@@ -40,19 +40,16 @@ class ml2017:
         observable = cp.get('dummysection','observable')
     
         Elist = None
-        
+
+        # tries to read Elist
         try:
             Elist = cp.get('dummysection','Elist')
-            print type(Elist)
-            print Elist
             Elist = np.fromstring(Elist,sep=" ")
-            print type(Elist)
-            print Elist
             Elist = Elist[1:]
-            print Elist
         except ConfigParser.NoOptionError:
             print "No Elist entry"
-    
+
+        # tries to read Emin, Emax, Esteps
         if Elist is None:
             try:
                 Emin = cp.getfloat('dummysection','Emin')
@@ -60,14 +57,12 @@ class ml2017:
                 Esteps = cp.getint('dummysection','Esteps')
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
-    
+
         if args.nsopt:
             if observable == "SGT":
                 if Elist is not None:
                     X = Elist
                     X = X.reshape(len(Elist),1)
-                    print X
-                    print X.shape
                     print "X from Elist"
                 else:
                     X = np.linspace(Emin,Emax,Esteps)
@@ -75,7 +70,8 @@ class ml2017:
                     print "X from Emin, Emax, Esteps"
         else:
             X = np.random.uniform(-3.,3.,(20,1))
-    
+            print "X from uniform distribution"
+            
         return X
     
     def main(self):
