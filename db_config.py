@@ -1,8 +1,10 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine, Column, Integer, String, Date, Float
 
+db_path = '/net/data1/ml2017/database/test.db'
+
 Base = declarative_base()
-engine = create_engine('sqlite:////net/data1/ml2017/database/test.db', echo=True)
+engine = create_engine('sqlite:///' + db_path, echo=True)
 
 class Measurement(Base):
     __tablename__ = 'measurements'
