@@ -1,5 +1,5 @@
 import numpy as np
-
+import pydoe as pydoe
 class Parameters():
     """Handles input and generation of LECs."""
 
