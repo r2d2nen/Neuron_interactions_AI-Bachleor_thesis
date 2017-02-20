@@ -2,18 +2,15 @@ from db_config import engine, Measurement
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-'''
-The datahandler object acts as an interface to the projects database
-It allows you to either save a new measurement as a line in the database,
-or to retrieve previous measurements based on a tag system.
-
-When adding new lines you must specify a tag (for example 'scattering_trainingset')
-
-Whenever you want to use the data, you provide the tag and will receive all sets of data with that tag
-'''
-
 
 class Datamanager():
+    '''
+    The datamanager object acts as an interface to the projects database
+    It allows you to either save a new measurement as a line in the database,
+    or to retrieve previous measurements based on a tag system.
+    When adding new lines you must specify a tag (for example 'scattering_trainingset')
+    Whenever you want to use the data, you provide the tag and will receive all sets of data with that tag
+    '''
 
     def __init__(self):
         self.Session = sessionmaker(bind=engine)
@@ -21,7 +18,7 @@ class Datamanager():
 
     def insert(self, tag='Default', value=None, energy=None, LECs=None):
         date = datetime.now()
-        '''We may still have measurements without LEC information'''
+        #We may still have measurements without LEC information
         if value is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
             return False
@@ -46,11 +43,11 @@ class Datamanager():
                 tags.append(tag[0])
         return tags
 
-'''
-This class defines the "data-chunk" that will be returned from the Datamanager.read function
-The desired data will be available through instance variables (self.value, self.energy, self.LEC)
-'''
 class Data():
+    '''
+    This class defines the "data-chunk" that will be returned from the Datamanager.read function
+    The desired data will be available through instance variables (self.value, self.energy, self.LEC)
+    '''
 
     def __init__(self, Meas):
         self.value = Meas.value
