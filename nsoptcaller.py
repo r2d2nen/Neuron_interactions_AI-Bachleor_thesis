@@ -59,7 +59,6 @@ class NsoptCaller:
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
 
-        # Sets the observable we want to examine
         if args.nsopt:
             if observable == "SGT":
                 if Elist is not None:
@@ -77,7 +76,6 @@ class NsoptCaller:
     
    
     def get_nsopt_observable(self):
-        """Calculates and returns the specified observable at energy positions. """
         pot = 'N2LOsim'
         lam = 500
         cut = 290
