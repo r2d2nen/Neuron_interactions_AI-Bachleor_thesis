@@ -34,9 +34,10 @@ class Parameters():
             'e18': (-2.5068. 8.3777, 1.9022),
             }
 
+    def create_monospaced_lecs(LEC_intervals, num_of_points):
+        
         num_of_LECs = len(LEC_intervals.keys())
-        num_of_points = 10j
-
+        
         LEC_grid = np.mgrid[
             LEC_intervals['Ct_1S0np'][0]:LEC_intervals['Ct_1S0np'][1]:num_of_points,
             LEC_intervals['Ct_1S0pp'][0]:LEC_intervals['Ct_1S0pp'][1]:num_of_points,
@@ -64,7 +65,8 @@ class Parameters():
             LEC_intervals['e17'][0]:LEC_intervals['e17'][1]:num_of_points,
             LEC_intervals['e18'][0]:LEC_intervals['e18'][1]:num_of_points,
             ].reshape(num_of_LECs,-1).T
-            
+
+        return LEC_grid
         
         
         pass
