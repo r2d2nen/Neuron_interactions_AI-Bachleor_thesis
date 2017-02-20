@@ -48,7 +48,8 @@ class Parameters():
     def create_monospaced_lecs(LEC_dict, num_of_points):
         
         num_of_LECs = len(LEC_intervals.dict())
-        
+
+        # num_of_points must be an integer on the imaginary  axis
         LEC_grid = np.mgrid[
             LEC_dict['Ct_1S0np'][0]:LEC_dict['Ct_1S0np'][1]:num_of_points,
             LEC_dict['Ct_1S0pp'][0]:LEC_dict['Ct_1S0pp'][1]:num_of_points,
