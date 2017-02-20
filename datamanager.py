@@ -25,7 +25,7 @@ class Datamanager():
         if value is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
             return False
-        '''Handle LECs'''
+        #Handle LECs
         m = Measurement(tag=tag, date=date, value=value, energy=energy)
         self.s.add(m)
         self.s.commit()

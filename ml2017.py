@@ -1,14 +1,11 @@
 from resources import python_nsopt
-import ConfigParser
-import StringIO
 import numpy as np
 import os
 from matplotlib import pyplot as plt
 import sys
-import argparse
+import ConfigParser
+import StringIO
 
-#import project files
-from gaussfit import Gaussfit
 
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
@@ -24,8 +21,8 @@ class ml2017:
     '''
 
     def __init__(self):
-        '''Definiera klassvariabler'''
-        pass
+        self.energies = None
+        self.observable = None
 
     def read_ini(self, args):
         # read .ini file
@@ -43,13 +40,13 @@ class ml2017:
         
         try:
             Elist = cp.get('dummysection','Elist')
-            print type(Elist)
-            print Elist
+            #print type(Elist)
+            #print Elist
             Elist = np.fromstring(Elist,sep=" ")
-            print type(Elist)
-            print Elist
+            #print type(Elist)
+            #print Elist
             Elist = Elist[1:]
-            print Elist
+            #print Elist
         except ConfigParser.NoOptionError:
             print "No Elist entry"
     
@@ -66,41 +63,20 @@ class ml2017:
                 if Elist is not None:
                     X = Elist
                     X = X.reshape(len(Elist),1)
-                    print X
-                    print X.shape
-                    print "X from Elist"
+                    #print X
+                    #print X.shape
+                    #print "X from Elist"
                 else:
                     X = np.linspace(Emin,Emax,Esteps)
                     X = X.reshape(Esteps, 1)
-                    print "X from Emin, Emax, Esteps"
+                    #print "X from Emin, Emax, Esteps"
         else:
             X = np.random.uniform(-3.,3.,(20,1))
     
+        self.energies = X
         return X
     
-    def main(self):
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-v", "--verbosity", action="store_true", help="Show data output")
-        group= parser.add_mutually_exclusive_group()
-        group.add_argument("-f", "--function", action="store", help="Use specified function for GP")
-        group.add_argument("-n", "--nsopt", action="store_true", help="Use nsopt calculation for GP")
-        args = parser.parse_args()
-    
-        X = self.read_ini(args)
-        
-        if args.nsopt:
-            Y = self.get_nsopt_observable()
-            Y = np.trim_zeros(Y)
-            Y = Y.reshape(len(Y),1)
-        else:
-            Y = np.sin(X) + np.random.randn(20,1)*0.03
-        
-        self.Gauss = Gaussfit()
-        self.Gauss.set_gp_kernel()
-        self.Gauss.populate_gp_model(X, Y)
-        self.Gauss.optimize()
-        self.Gauss.plot()
-    
+   
     def get_nsopt_observable(self):
         pot = 'N2LOsim'
         lam = 500
@@ -145,9 +121,10 @@ class ml2017:
         #print nsopt_observables
     
         nsopt.terminate()
-    
+
+        self.observable = nsopt_observables
         return nsopt_observables
     
-if __name__ == '__main__':
-    ml = ml2017()
-    ml.main()
+#if __name__ == '__main__':
+#    ml = ml2017()
+#    ml.main()

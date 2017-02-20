@@ -34,5 +34,5 @@ class Gaussfit:
     def plot(self):
         '''Plot the GP-model'''
         '''Plot limits only for 1D-case'''
-        self.model.plot(plot_limits=[0, 290])
+        self.model.plot()
         plt.show()
