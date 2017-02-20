@@ -22,8 +22,6 @@ def main():
     #Add tag handling. Supports multiple arg seperated by space.
     group.add_argument("-l", "--load", nargs='+', action='append', help="Use stored data for GP") 
     args = parser.parse_args()
-    print(args)
-    print(args.function)
 
     # Initialize project class objects
     nsopt = NsoptCaller()
@@ -34,7 +32,7 @@ def main():
     X = nsopt.read_ini(args)
     
     # Load all data with the right tags
-    if args.load != None:
+    if args.load:
         data = dm.read(args.load[0])
 
 
@@ -50,11 +48,11 @@ def main():
     gauss.set_gp_kernel()
 
     #TODO(rikard) Is this what I was sopposed to do?
-    if args.load != None:
-        gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
+    if args.load:
+       gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
     else:
-        gauss.populate_gp_model(X, Y)
-    
+       gauss.populate_gp_model(X, Y)
+    gauss.populate_gp_model(X, Y)
     gauss.optimize()
     gauss.plot()
 
