@@ -1,4 +1,4 @@
-from db_config import engine, Measurement
+from db_config import engine, Measurement, Tag, association_table
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
@@ -23,22 +23,31 @@ class Datamanager():
             print 'Measurement or energy may not be None, exiting insert'
             return False
         #Handle LECs
-        m = Measurement(tag=tag, date=date, value=value, energy=energy)
+        m = Measurement(date=date, value=value, energy=energy)
+        t = self.s.query(Tag).filter_by(tag=tag).all()
+        if not t:
+            t = Tag(tag=tag)
+            self.s.add(t)
+
+        m.children.append(t[0])
         self.s.add(m)
         self.s.commit()
         return True
 
     '''Returns a Data object for every line matching the specified tag'''
-    def read(self, tag):
+    def read(self, tags=[]):
         data_objects = []
-        for meas in self.s.query(Measurement).filter_by(tag=tag):
-            data_objects.append(Data(meas))
-        return data_objects
+        print self.s.query(Tag.tag).filter_by().join(association_table).all()
+        
+        
+        #for meas in self.s.query(Measurement).filter_by(tag=tag):
+        #    data_objects.append(Data(meas))
+        #return data_objects
 
     '''Returns a list of all used tags'''
     def list_tags(self):
         tags = []
-        for tag in self.s.query(Measurement.tag):
+        for tag in self.s.query(Tag.tag):
             if tag[0] not in tags:
                 tags.append(tag[0])
         return tags
@@ -59,8 +68,13 @@ class Data():
 
 if __name__ == '__main__':
     dm = Datamanager()
-    dm.insert(tag='tested', value=15, energy=99)
-    #data = dm.read('test')
+    #dm.insert(tag='more', value=25, energy=1000)
+    #dm.insert(tag='tags', value=22, energy=100)
+    #dm.insert(tag='tags', value=24, energy=10)
+    #dm.insert(tag='more', value=25, energy=99)
+    data = dm.read(['test'])
+    data = dm.read(['test', 'tested'])
+    data = dm.read()
     #for d in data:
     #    print d
-    print dm.list_tags()
+    #print dm.list_tags()
