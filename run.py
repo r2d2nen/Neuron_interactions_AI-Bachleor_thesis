@@ -22,8 +22,7 @@ def main():
     #Add tag handling. Supports multiple arg seperated by space.
     group.add_argument("-l", "--load", nargs='+', action='append', help="Use stored data for GP") 
     args = parser.parse_args()
-    print(args)
-    print(args.function)
+    
 
     # Initialize project class objects
     nsopt = NsoptCaller()
@@ -54,7 +53,6 @@ def main():
         gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
     else:
         gauss.populate_gp_model(X, Y)
-    
     gauss.optimize()
     gauss.plot()
 
