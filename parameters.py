@@ -3,18 +3,20 @@ import numpy as np
 class Parameters():
     """Handles input and generation of LECs."""
 
-    def __init__():
+    def __init__(self, interval, nbr_of_points):
+        ### Set up parameter volume from supplied interval #LEC
         # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple (min, max, +- sigma)
-        #TODO(DANIEL): Complete this dict and ask Andreas about LECs. Which ones will we use?
-        self.LEC_intervals = {
+        #TODO(DANIEL): Ask Andreas about LECs. Which ones will we use and names are wrong?
+        self.LEC_dict = {
             'Ct_1S0np': (-0.1519, -0.1464, 0.002),
             'Ct_1S0pp': (-0.1512, -0.1454, 0.002),
             'Ct_1S0nn': (-0.1518, -0.1463, 0.0021),
             'C_1S0': (2.4188, 2-5476, 0.0511),
             'Ct_3S1': (-0.1807, -0.1348, 0.0032),
-            'C_3S1-3D1': (),
+            'C3S1': (0.5037, 0.7396, 0.0.0521),
+            'C_3S1-3D1': (0.2792. 0.6574, 0.0428),
             'C_3P0': (0.9924, 1.6343, 0.0428),
-            # C_1P1?
+            'C_1P1': (0.0618, 0.6635, 0.0438),
             'C_3P1': (-0.9666, -0.4724, 0.0438),
             'C_3P2': (-0.7941, -0.6324, 0.0327),
             'c_D': (0.5933, 0.8348, 0.0833),
@@ -34,36 +36,45 @@ class Parameters():
             'e18': (-2.5068. 8.3777, 1.9022),
             }
 
-    def create_monospaced_lecs(LEC_intervals, num_of_points):
+        # Number of data points we want in our specified volume for each LEC
+        self.nbr_of points = nbr_of_points
+
+        # Dict
+       # self.LEC_volume = 
+
+        num_of_LECs = len(LEC_dict.keys())
+        num_of_points = 10j
+
+    def create_monospaced_lecs(LEC_dict, num_of_points):
         
-        num_of_LECs = len(LEC_intervals.keys())
+        num_of_LECs = len(LEC_intervals.dict())
         
         LEC_grid = np.mgrid[
-            LEC_intervals['Ct_1S0np'][0]:LEC_intervals['Ct_1S0np'][1]:num_of_points,
-            LEC_intervals['Ct_1S0pp'][0]:LEC_intervals['Ct_1S0pp'][1]:num_of_points,
-            LEC_intervals['Ct_1S0nn'][0]:LEC_intervals['Ct_1S0nn'][1]:num_of_points,
-            LEC_intervals['C_1S0'][0]:LEC_intervals['C_1S0'][1]:num_of_points,
-            LEC_intervals['Ct_3S1'][0]:LEC_intervals['Ct_3S1'][1]:num_of_points,
-            LEC_intervals['C_3S1-3D1'][0]:LEC_intervals['C_3S1-3D1'][1]:num_of_points,
-            LEC_intervals['C_3P0'][0]:LEC_intervals['C_3P0'][1]:num_of_points,
-            # C_1P1?
-            LEC_intervals['C_3P1'][0]:LEC_intervals['C_3P1'][1]:num_of_points,
-            LEC_intervals['C_3P2'][0]:LEC_intervals['C_3P2'][1]:num_of_points,
-            LEC_intervals['c_D'][0]:LEC_intervals['c_D'][1]:num_of_points,
-            LEC_intervals['c_E'][0]:LEC_intervals['c_E'][1]:num_of_points,
-            LEC_intervals['c1'][0]:LEC_intervals['c1'][1]:num_of_points,
-            LEC_intervals['c2'][0]:LEC_intervals['c2'][1]:num_of_points,
-            LEC_intervals['c3'][0]:LEC_intervals['c3'][1]:num_of_points,
-            LEC_intervals['c4'][0]:LEC_intervals['c4'][1]:num_of_points,
-            LEC_intervals['d1+d2'][0]:LEC_intervals['d1+d2'][1]:num_of_points,
-            LEC_intervals['d3'][0]:LEC_intervals['d3'][1]:num_of_points,
-            LEC_intervals['d5'][0]:LEC_intervals['d5'][1]:num_of_points,
-            LEC_intervals['d14-d15'][0]:LEC_intervals['d14-d15'][1]:num_of_points,
-            LEC_intervals['e14'][0]:LEC_intervals['e14'][1]:num_of_points,
-            LEC_intervals['e15'][0]:LEC_intervals['e15'][1]:num_of_points,
-            LEC_intervals['e16'][0]:LEC_intervals['e16'][1]:num_of_points,
-            LEC_intervals['e17'][0]:LEC_intervals['e17'][1]:num_of_points,
-            LEC_intervals['e18'][0]:LEC_intervals['e18'][1]:num_of_points,
+            LEC_dict['Ct_1S0np'][0]:LEC_dict['Ct_1S0np'][1]:num_of_points,
+            LEC_dict['Ct_1S0pp'][0]:LEC_dict['Ct_1S0pp'][1]:num_of_points,
+            LEC_dict['Ct_1S0nn'][0]:LEC_dict['Ct_1S0nn'][1]:num_of_points,
+            LEC_dict['C_1S0'][0]:LEC_dict['C_1S0'][1]:num_of_points,
+            LEC_dict['Ct_3S1'][0]:LEC_dict['Ct_3S1'][1]:num_of_points,
+            LEC_dict['C_3S1-3D1'][0]:LEC_dict['C_3S1-3D1'][1]:num_of_points,
+            LEC_dict['C_3P0'][0]:LEC_dict['C_3P0'][1]:num_of_points,
+            LEC_dict['C_1P1'][0]:LEC_dict['C_3PO'][1]:num_of_points,
+            LEC_dict['C_3P1'][0]:LEC_dict['C_3P1'][1]:num_of_points,
+            LEC_dict['C_3P2'][0]:LEC_dict['C_3P2'][1]:num_of_points,
+            LEC_dict['c_D'][0]:LEC_dict['c_D'][1]:num_of_points,
+            LEC_dict['c_E'][0]:LEC_dict['c_E'][1]:num_of_points,
+            LEC_dict['c1'][0]:LEC_dict['c1'][1]:num_of_points,
+            LEC_dict['c2'][0]:LEC_dict['c2'][1]:num_of_points,
+            LEC_dict['c3'][0]:LEC_dict['c3'][1]:num_of_points,
+            LEC_dict['c4'][0]:LEC_dict['c4'][1]:num_of_points,
+            LEC_dict['d1+d2'][0]:LEC_dict['d1+d2'][1]:num_of_points,
+            LEC_dict['d3'][0]:LEC_dict['d3'][1]:num_of_points,
+            LEC_dict['d5'][0]:LEC_dict['d5'][1]:num_of_points,
+            LEC_dict['d14-d15'][0]:LEC_dict['d14-d15'][1]:num_of_points,
+            LEC_dict['e14'][0]:LEC_dict['e14'][1]:num_of_points,
+            LEC_dict['e15'][0]:LEC_dict['e15'][1]:num_of_points,
+            LEC_dict['e16'][0]:LEC_dict['e16'][1]:num_of_points,
+            LEC_dict['e17'][0]:LEC_dict['e17'][1]:num_of_points,
+            LEC_dict['e18'][0]:LEC_dict['e18'][1]:num_of_points,
             ].reshape(num_of_LECs,-1).T
 
         return LEC_grid
@@ -75,5 +86,12 @@ class Parameters():
         # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
         # samples, num_of_LECs)
         
-        
-        pass
+    @property
+    def nbr_of_points(self):
+        return self.nbr_of_points
+    
+    @nbr_of_points.setter
+    def nbr_of_points(self, nbr_of_points):
+        self._nbr_of_points = nbr_of_points
+
+    
