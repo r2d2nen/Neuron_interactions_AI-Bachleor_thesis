@@ -24,7 +24,7 @@ class ml2017:
     '''
 
     def __init__(self):
-        '''Defining class variablesr'''
+        '''Defining class variables'''
         pass
 
     def read_ini(self, args):
