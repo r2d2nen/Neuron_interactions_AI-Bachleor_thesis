@@ -48,7 +48,8 @@ class Parameters():
     def create_monospaced_lecs(self, LEC_dict, num_of_points):
         
         num_of_LECs = len(LEC_intervals.dict())
-        
+
+        # num_of_points must be an integer on the imaginary  axis
         LEC_grid = np.mgrid[
             LEC_dict['Ct_1S0np'][0]:LEC_dict['Ct_1S0np'][1]:num_of_points,
             LEC_dict['Ct_1S0pp'][0]:LEC_dict['Ct_1S0pp'][1]:num_of_points,
@@ -79,11 +80,19 @@ class Parameters():
 
         return LEC_grid
 
+    
     def create_lhs_lecs(self):
         """Returns matrix of LECS sampled using latin hypercube sampling"""
         lhs(4, samples=10, criterion='center')
         pass
     
+    def create_random_uniform_lecs(LEC_intervals, num_of_samples):
+
+        num_of_LECs = len(LEC_intervals.keys())
+        
+        # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
+        # samples, num_of_LECs)
+        
     @property
     def nbr_of_points(self):
         return self.nbr_of_points
