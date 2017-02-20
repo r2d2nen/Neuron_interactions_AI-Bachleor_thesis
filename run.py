@@ -18,7 +18,9 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-f", "--function", action="store", help="Use specified function for GP")
     group.add_argument("-n", "--nsopt", action="store_true", help="Use nsopt calculation for GP")
-    group.add_argument("-l", "--load", action="store", help="Use stored data for GP") #Add tag handling
+
+    #Add tag handling. Supports multiple arg seperated by space.
+    group.add_argument("-l", "--load", nargs='+', action='append', help="Use stored data for GP") 
     args = parser.parse_args()
 
     # Initialize project class objects
@@ -28,6 +30,11 @@ def main():
 
     # Read input arguments to get input vector
     X = nsopt.read_ini(args)
+    
+    # Load all data with the right tags
+    if args.load != None:
+        data = dm.read(args.load[0])
+
 
     # Do we want to genereate new nsopt values or use specified function.
     if args.nsopt:
@@ -39,7 +46,13 @@ def main():
 
     # Set up GP-processes and plot output after optimization.
     gauss.set_gp_kernel()
-    gauss.populate_gp_model(X, Y)
+
+    #TODO(rikard) Is this what I was sopposed to do?
+    if args.load != None:
+        gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
+    else:
+        gauss.populate_gp_model(X, Y)
+    
     gauss.optimize()
     gauss.plot()
 
