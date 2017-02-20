@@ -1,5 +1,5 @@
 import numpy as np
-import pydoe as pydoe
+import pyDOE as pydoe
 class Parameters():
     """Handles input and generation of LECs."""
 
@@ -45,7 +45,7 @@ class Parameters():
         num_of_LECs = len(LEC_dict.keys())
         num_of_points = 10j
 
-    def create_monospaced_lecs(LEC_dict, num_of_points):
+    def create_monospaced_lecs(self, LEC_dict, num_of_points):
         
         num_of_LECs = len(LEC_intervals.dict())
         
@@ -78,7 +78,12 @@ class Parameters():
             ].reshape(num_of_LECs,-1).T
 
         return LEC_grid
-        
+
+    def create_lhs_lecs(self):
+        """Returns matrix of LECS sampled using latin hypercube sampling"""
+        lhs(4, samples=10, criterion='center')
+        pass
+    
     @property
     def nbr_of_points(self):
         return self.nbr_of_points
