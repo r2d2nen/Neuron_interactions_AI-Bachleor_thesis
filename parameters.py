@@ -67,6 +67,13 @@ class Parameters():
             ].reshape(num_of_LECs,-1).T
 
         return LEC_grid
+
+    def create_random_uniform_lecs(LEC_intervals, num_of_samples):
+
+        num_of_LECs = len(LEC_intervals.keys())
+        
+        # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
+        # samples, num_of_LECs)
         
         
         pass
