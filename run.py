@@ -52,7 +52,6 @@ def main():
        gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
     else:
        gauss.populate_gp_model(X, Y)
-    gauss.populate_gp_model(X, Y)
     gauss.optimize()
     gauss.plot()
 
