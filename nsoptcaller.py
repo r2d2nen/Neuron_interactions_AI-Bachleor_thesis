@@ -11,7 +11,7 @@ import StringIO
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
 
-class ml2017:
+class NsoptCaller:
     '''
     Rewriting this as a class
 
@@ -26,7 +26,9 @@ class ml2017:
         self.observable = None
 
     def read_ini(self, args):
-        # read .ini file
+        """Reads .ini-file line by line and determines input arguments."""
+
+        # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
         config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
@@ -36,7 +38,8 @@ class ml2017:
         cp.readfp(config)
     
         observable = cp.get('dummysection','observable')
-    
+
+        # List of input energies
         Elist = None
 
         # tries to read Elist

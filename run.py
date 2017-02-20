@@ -4,7 +4,7 @@ import numpy as np
 
 #import project files
 from gaussfit import Gaussfit
-from ml2017 import ml2017
+from nsoptcaller import NsoptCaller
 from datamanager import Datamanager
 
 def main():
@@ -22,9 +22,11 @@ def main():
     #Add tag handling. Supports multiple arg seperated by space.
     group.add_argument("-l", "--load", nargs='+', action='append', help="Use stored data for GP") 
     args = parser.parse_args()
+    print(args)
+    print(args.function)
 
     # Initialize project class objects
-    nsopt = ml2017()
+    nsopt = NsoptCaller()
     gauss = Gaussfit()
     dm = Datamanager()
 
