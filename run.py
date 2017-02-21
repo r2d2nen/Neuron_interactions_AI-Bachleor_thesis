@@ -31,9 +31,10 @@ def main():
     # Read input arguments to get input vector
     X = nsopt.read_ini(args)
     
-    # Load all data with the right tags
+    # Load all data with the right tags and convert to array
     if args.load:
         data = dm.read(args.load[0])
+        data = np.asarray(data)
 
 
     # Do we want to genereate new nsopt values or use specified function.
@@ -47,9 +48,8 @@ def main():
     # Set up GP-processes and plot output after optimization.
     gauss.set_gp_kernel()
 
-    #TODO(rikard) Is this what I was sopposed to do?
     if args.load:
-       gauss.populate_gp_model(data) #TODO(rikard) Check data format. Need to refine data?
+       gauss.populate_gp_model(data) #TODO(rikard) Check data format.
     else:
        gauss.populate_gp_model(X, Y)
     gauss.optimize()
