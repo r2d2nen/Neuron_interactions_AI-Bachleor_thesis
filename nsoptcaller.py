@@ -24,9 +24,12 @@ class NsoptCaller:
         '''Defining class variables'''
         self.energies = None
         self.observable = None
+        print("hi")
 
     def read_ini(self, args):
         """Reads .ini-file line by line and determines input arguments."""
+        
+        print("hi")
 
         # Preparing and opening init file "set_parameters"
         config_set = StringIO.StringIO()
@@ -35,37 +38,31 @@ class NsoptCaller:
 
         cp_set = ConfigParser.ConfigParser()
         cp_set.readfp(config_set)
-
-        # Preparing and opening init file "evaluate_xsec"
-        #config = StringIO.StringIO()
-        config.write(open('resources/evaluate_xsec.ini').read())
-        config.seek(0, os.SEEK_SET)
-    
-        cp = ConfigParser.RawConfigParser()
-        cp.readfp(config)
-
-        try:
-            Emin = cp_set.getfloat('evaluate_exsec','Emin')
-            Emax = cp_set.getfloat('evaluate_exsec','Emax')
-            Esteps = cp_set.getint('evaluate_exsec','Esteps')
-            
-            cp_set.set('evaluate_exsec','Emin',Emin)
-            cp_set.set('evaluate_exsec','Emax',Emax)
-            cp_set.set('evaluate_exsec','Esteps',Esteps)
-        except ConfigParser.NoOptionError:
-            print "No entries for Emin, Emax or Esteps"
-         
-
+        
+        txt_set = open(resources/set_parameters.ini, 'r')
+        txt="[section]"
+        for line in txt:
+            if evaluate_exsec in line: continue # takes me to the lin containg "evaluate_exsec" 
+        
+        for line in txt:
+            txt.append(line)
+            if evaluate_ncsm in line: continue # saves the line until "evaluate_ncsm" 
+        
+        print(txt)
+        
+        #txt_exsec = open(resources/evaluate_exsec.ini)
+        #txt_exsec.truncate
+        
 
 
 
         # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
-        #config = StringIO.StringIO()
-        #config.write(open('resources/evaluate_xsec.ini').read())
-        #config.seek(0, os.SEEK_SET)
+        config = StringIO.StringIO()
+        config.write(open('resources/evaluate_xsec.ini').read())
+        config.seek(0, os.SEEK_SET)
     
-        #cp = ConfigParser.ConfigParser()
-        #cp.readfp(config)
+        cp = ConfigParser.ConfigParser()
+        cp.readfp(config)
     
         observable = cp.get('section','observable')
 
