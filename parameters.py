@@ -9,10 +9,11 @@ class Parameters():
         Args:
         Center_lecs - center point which we would like to sample lecs around
         Interval - interval around the center point in percentage (
-        nbr_of_samples - number of data points we want to generate in the volume.
+        nbr_of_samples - number of data points we want to generate for each LEC.
 
         """
-                               
+        #TODO(Erik,Daniel): fixa default center_lecs
+        
         # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple (min, max, interval, +-sigma)
         # Commented out LECS are for higher order approximations.
         self.lecs_dict = {
@@ -66,14 +67,28 @@ class Parameters():
         
         self.nbr_of_samples = nbr_of_samples
         self.center_lecs = center_lecs
-        self.nbr_of_lecs = len(lec_dict.keys()
+        self.nbr_of_lecs = len(lec_dict.keys())
 
         self.volume_length = np.zeros(nbr_of_lecs)
-        for name in lecs_name:
-            self.volume_length = self.lect_dict[name][3]*self.interval
+        for idx,name in self.lecs_name:
+            self.volume_length[idx] = self.lect_dict[name][2]*self.interval
         
-    def create_monospaced_lecs(self, lecs_dict, num_of_points):
+    def create_monospaced_lecs(self):
         # num_of_points must be an integer on the imaginary  axis
+
+        range_list = []
+
+        for idx,name in self.lecs_name:
+            range_list.append((self.center_lecs[idx]-self.volume_length[idx]/2,
+                               self.center_lecs[idx]+self.volume_length[idx]/2,
+                               self.num_of_samples))
+                            
+        lecs_grid = np.mgrid[[slice(i,j,k) for i,j,k in range_list]].reshape(len(range_list),-1).T
+
+
+                               
+            
+        """
         lecs_grid = np.mgrid[
             lecs_dict['Ct_1S0np'][0]:lecs_dict['Ct_1S0np'][1]:num_of_points,
             lecs_dict['Ct_1S0pp'][0]:lecs_dict['Ct_1S0pp'][1]:num_of_points,
@@ -101,7 +116,8 @@ class Parameters():
             lecs_dict['e17'][0]:lecs_dict['e17'][1]:num_of_points,
             lecs_dict['e18'][0]:lecs_dict['e18'][1]:num_of_points,
             ].reshape(num_of_lecs,-1).T
-
+        """
+        
         return lecs_grid
 
     
