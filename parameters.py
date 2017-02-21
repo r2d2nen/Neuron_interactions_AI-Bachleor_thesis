@@ -1,20 +1,28 @@
 import numpy as np
 import pyDOE as pydoe
 class Parameters():
-    """Handles input and generation of LECs."""
+    """Handles input and generation of LECs.
+    
+    All 
+    """
 
     def __init__(self, interval, center_lecs, nbr_of_samples):
         """Set up parameter volume from supplied intervals.
         
         Args:
-        Center_lecs - center point which we would like to sample lecs around
-        Interval - interval around the center point in percentage (
-        nbr_of_samples - number of data points we want to generate for each LEC.
+        Center_lecs - numpy array with center points which we would like to sample lecs around
+        Interval - interval around the center point in parts (0 to 1 where 0.10 means 10 percent)
+        nbr_of_samples - number of data points we want to generate in the volume.
 
         """
-        #TODO(Erik,Daniel): fixa default center_lecs
         
-        # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple (min, max, interval, +-sigma)
+
+        #TODO(Erik,Daniel): fixa default center_lecs
+
+        
+        # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple
+        # (min, max, interval, +-sigma)
+
         # Commented out LECS are for higher order approximations.
         self.lecs_dict = {
             'Ct_1S0np': (-0.1519, -0.1464, 0.0055 , 0.002),
@@ -45,7 +53,8 @@ class Parameters():
             #'e18': (-2.5068. 8.3777, 1.9022),
             }
 
-        # Array with lec names to be used with dict above
+        # Array with lec names to be used with dict above, for looping etc
+        #TODO(DANIEL): Change this into something nicer and easier to work with.
         self.lecs_name = [
             'Ct_1S0np',
             'Ct_1S0pp',
@@ -64,11 +73,14 @@ class Parameters():
             'c3',
             'c4',
             ]
-        
+
+        # Set up dimensions of sample size and lecs.
         self.nbr_of_samples = nbr_of_samples
-        self.center_lecs = center_lecs
+
+        self.center_lecs = center_lecs.reshape(1,len(center_lecs))
         self.nbr_of_lecs = len(lec_dict.keys())
 
+        # Array with the interval length in which each lec can vary with the current interval settings
         self.volume_length = np.zeros(nbr_of_lecs)
         for idx,name in self.lecs_name:
             self.volume_length[idx] = self.lect_dict[name][2]*self.interval
