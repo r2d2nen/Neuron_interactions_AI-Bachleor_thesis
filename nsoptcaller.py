@@ -6,6 +6,7 @@ import sys
 import ConfigParser
 import StringIO
 
+#This is a extra line
 
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
