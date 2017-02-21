@@ -6,7 +6,6 @@ import sys
 import ConfigParser
 import StringIO
 
-#This is a extra line
 
 # Init files and path to nsopt
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
@@ -29,23 +28,53 @@ class NsoptCaller:
     def read_ini(self, args):
         """Reads .ini-file line by line and determines input arguments."""
 
-        # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
-        config = StringIO.StringIO()
-        config.write('[dummysection]\n')
+        # Preparing and opening init file "set_parameters"
+        config_set = StringIO.StringIO()
+        config_set.write(open('resources/set_parameters.ini').read())
+        config_set.seek(0, os.SEEK_SET)
+
+        cp_set = ConfigParser.ConfigParser()
+        cp_set.readfp(config_set)
+
+        # Preparing and opening init file "evaluate_xsec"
+        #config = StringIO.StringIO()
         config.write(open('resources/evaluate_xsec.ini').read())
         config.seek(0, os.SEEK_SET)
     
-        cp = ConfigParser.ConfigParser()
+        cp = ConfigParser.RawConfigParser()
         cp.readfp(config)
+
+        try:
+            Emin = cp_set.getfloat('evaluate_exsec','Emin')
+            Emax = cp_set.getfloat('evaluate_exsec','Emax')
+            Esteps = cp_set.getint('evaluate_exsec','Esteps')
+            
+            cp_set.set('evaluate_exsec','Emin',Emin)
+            cp_set.set('evaluate_exsec','Emax',Emax)
+            cp_set.set('evaluate_exsec','Esteps',Esteps)
+        except ConfigParser.NoOptionError:
+            print "No entries for Emin, Emax or Esteps"
+         
+
+
+
+
+        # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
+        #config = StringIO.StringIO()
+        #config.write(open('resources/evaluate_xsec.ini').read())
+        #config.seek(0, os.SEEK_SET)
     
-        observable = cp.get('dummysection','observable')
+        #cp = ConfigParser.ConfigParser()
+        #cp.readfp(config)
+    
+        observable = cp.get('section','observable')
 
         # List of input energies
         Elist = None
 
         # tries to read Elist
         try:
-            Elist = cp.get('dummysection','Elist')
+            Elist = cp.get('section','Elist')
             Elist = np.fromstring(Elist,sep=" ")
             Elist = Elist[1:]
         except ConfigParser.NoOptionError:
@@ -54,9 +83,9 @@ class NsoptCaller:
         # tries to read Emin, Emax, Esteps
         if Elist is None:
             try:
-                Emin = cp.getfloat('dummysection','Emin')
-                Emax = cp.getfloat('dummysection','Emax')
-                Esteps = cp.getint('dummysection','Esteps')
+                Emin = cp.getfloat('section','Emin')
+                Emax = cp.getfloat('section','Emax')
+                Esteps = cp.getint('section','Esteps')
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
 
