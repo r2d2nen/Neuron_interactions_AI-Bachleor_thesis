@@ -24,27 +24,29 @@ class Datamanager():
         if observable is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
             return False
-        #Handle LECs
-        m = Measurement(date=date, observable=observable, energy=energy)
-        t = self.s.query(Tag).filter(Tag.tag.in_(tags)).all()
-        if not t:
+        #TODO(Martin) handle LECs
+
+        #Create a new measurement row and query for mathching tags
+        new_meas = Measurement(date=date, observable=observable, energy=energy)
+        old_tags = self.s.query(Tag).filter(Tag.tag.in_(tags)).all()
+        if not old_tags:
             #If there are no matching tags in database, add all of them
             for tag in tags:
-                t = Tag(tag=tag)
-                self.s.add(t)
-                m.children.append(t)
+                new_tag = Tag(tag=tag)
+                self.s.add(new_tag)
+                m.children.append(new_tag)
         else:
-            #Add the tags that don't exist
-            for tag in t:
+            #If one or more tags are new, first connect the old ones then create the new ones
+            for tag in old_tags:
                 if tag.tag in tags:
                     m.children.append(tag)
                     tags.remove(tag.tag)
             for tag in tags:
-                t = Tag(tag=tag)
-                self.s.add(t)
-                m.children.append(t)
+                new_tag = Tag(tag=tag)
+                self.s.add(new_tag)
+                m.children.append(new_tag)
 
-        self.s.add(m)
+        self.s.add(new_meas)
         self.s.commit()
         return True
 
@@ -54,7 +56,7 @@ class Datamanager():
         #The database doesn't like empty lists
         if not tags:
             return []
-        #Find all rows in association matching all given tags (and possibly more tags)
+        #Find all rows in association matching all given tags
         relation_subq = self.s.query(association_table.c.meas_id).\
                 join(Tag).filter(Tag.tag.in_(tags)).\
                 group_by(association_table.c.meas_id).\
@@ -62,7 +64,7 @@ class Datamanager():
                 subquery()
         matches = self.s.query(Measurement).join(relation_subq).all()
         
-        #Translating the objects to allow easier handling
+        #Use data objects as a collection of the data.
         for meas in matches:
             data_objects.append(Data(meas))
         return data_objects
@@ -85,7 +87,8 @@ class Data():
     def __init__(self, Meas):
         self.observable = Meas.observable
         self.energy = Meas.energy
-        #Add LECs
+        self.LECs = []
+        #TODO(Martin) Add LECs
 
     def __repr__(self):
         return 'Datachunk: observable=%d, energy=%d'%(self.observable, self.energy)
