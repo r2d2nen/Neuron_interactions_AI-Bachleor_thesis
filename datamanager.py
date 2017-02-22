@@ -13,7 +13,8 @@ class Datamanager():
     Whenever you want to use the data, you provide another list of tags and receive all data entries with that tag
     '''
 
-    def __init__(self):
+    def __init__(self, echo=False):
+        engine.echo = echo
         self.Session = sessionmaker(bind=engine)
         self.s = self.Session()
 
@@ -36,8 +37,8 @@ class Datamanager():
             #Add the tags that don't exist
             for tag in t:
                 if tag.tag in tags:
-                    m.children.append(t)
-                    tags.remove(tag)
+                    m.children.append(tag)
+                    tags.remove(tag.tag)
             for tag in tags:
                 t = Tag(tag=tag)
                 self.s.add(t)
@@ -59,12 +60,7 @@ class Datamanager():
                 group_by(association_table.c.meas_id).\
                 having(func.count(distinct(association_table.c.tag_id)) >= len (tags)).\
                 subquery()
-        #Query the matching measurement rows
         matches = self.s.query(Measurement).join(relation_subq).all()
-        #print '######'
-        #print 'Quering from: ' + str(tags)
-        #print matches
-        #print '######'
         
         #Translating the objects to allow easier handling
         for meas in matches:
@@ -95,10 +91,11 @@ class Data():
         return 'Datachunk: observable=%d, energy=%d'%(self.observable, self.energy)
 
 if __name__ == '__main__':
-    dm = Datamanager()
-    data = dm.read(['test'])
-    data = dm.read(['test', 'tested'])
-    data = dm.read(['else'])
-    #for d in data:
-    #    print d
-    #print dm.list_tags()
+    dm = Datamanager(echo=True)
+    #dm.insert(tags=['sgt', 'training', 'test'], observable=100, energy=50)
+    #dm.insert(tags=['sgt', 'training'], observable=20, energy=40)
+    #dm.insert(tags=['sgt', 'training'], observable=10, energy=5)
+    #dm.insert(tags=['sgt', 'validation'], observable=90, energy=55)
+
+    print dm.read(['validation'])
+
