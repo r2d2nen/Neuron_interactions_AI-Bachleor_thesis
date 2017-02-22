@@ -11,7 +11,7 @@ import StringIO
 PATH_LIBNSOPT = b'/net/home/andeks/software/nsopt/nucleon-scattering/libs/libnsopt.so.1.8.78.ml'
 PATH_INIFILES = b'/'
 
-class ml2017:
+class NsoptCaller:
     '''
     Rewriting this as a class
 
@@ -26,7 +26,9 @@ class ml2017:
         self.observable = None
 
     def read_ini(self, args):
-        # read .ini file
+        """Reads .ini-file line by line and determines input arguments."""
+
+        # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
         config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
@@ -36,7 +38,8 @@ class ml2017:
         cp.readfp(config)
     
         observable = cp.get('dummysection','observable')
-    
+
+        # List of input energies
         Elist = None
 
         # tries to read Elist
@@ -72,48 +75,45 @@ class ml2017:
         return X
     
    
-    def get_nsopt_observable(self):
-        pot = 'N2LOsim'
-        lam = 500
-        cut = 290
-    
-        #remove some LECs from the analysis
-        #e.g. *.cov.name - files for list
-        removed_LECs = (14,17,18,19,20,21,22,23,24,25)
-    
-        #read covariance matrix of LECs
-        cov = np.loadtxt(b'./resources/%s-%d-%d.cov.txt' %(pot,lam,cut) )
-        cov = np.delete(cov,removed_LECs,0)
-        cov = np.delete(cov,removed_LECs,1)
-    
-        #read LEC order
-        LEC_name = np.loadtxt(b'./resources/%s-%d-%d.cov.name' %(pot,lam,cut) ,dtype='S12')
-        LEC_name = np.delete(LEC_name,removed_LECs)
-        #read LEC values
-        LEC_value = np.loadtxt(b'./resources/%s-%d-%d.LEC_values.txt' %(pot,lam,cut) )
-        LEC_value = np.delete(LEC_value,removed_LECs)
-    
-        LEC_sigma = np.sqrt(np.diag(cov))
-        
-        print
-        print '%5s %25s %25s %25s' % ('no.','LEC','value','sigma')
-        for i in range(len(LEC_name)):
-            print '%5d %25s %25f %25f' %(i, LEC_name[i], LEC_value[i], LEC_sigma[i])
-        
-        par_vec = np.array(LEC_value)
-    
-        scale = 1.0
-        print 'sigma scale = %10f' %(scale)
-        cov = np.multiply(cov,scale*scale)
-        nof_samples = 1
-    
-        X_samples = np.random.multivariate_normal(par_vec, cov, size=nof_samples)
-    
+    def get_nsopt_observable(self, LECM=None):    
+        """
+        Takes a matrix of LECs LECM and calls nsopt to calculate the observable. Each row in LECM is a
+        set of LECs. Returns nsopt_observable where each row corresponds to a different set of LECs.
+        Reads a set of default LEC values if no LECM is given.
+        """
+
+        # sets default LECM
+        if LECM is None:
+            pot = 'N2LOsim'
+            lam = 500
+            cut = 290
+
+            # remove some LECs from analysis
+            removed_LECs = (14,17,18,19,20,21,22,23,24,25)
+
+            # reads 1 set of default LEC-values from text file
+            LECM = np.loadtxt(b'./resources/%s-%d-%d.LEC_values.txt' %(pot,lam,cut) )
+            LECM = np.delete(LECM,removed_LECs)
+
+        # makes LECM 2D array if it is 1D array to work with code
+        if len(LECM.shape) == 1:
+            LECM = LECM.reshape(1,-1)
+
         evaluate = 'include evaluate_xsec.ini'
         # evaluate = 'include evaluate_ncsm.ini'
         nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
-        nsopt_observables = nsopt.calculate_observable(X_samples[0,:])
-        #print nsopt_observables
+
+        # calls nsopt for each set of LECs in LECM
+        for i in range(len(LECM)):
+            temp = nsopt.calculate_observable(LECM[i,:])
+
+            if i == 0:
+                nsopt_observables = temp
+            else:
+                nsopt_observables = np.vstack((nsopt_observable, temp))
+        
+
+            #print nsopt_observables
     
         nsopt.terminate()
 
