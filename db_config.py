@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 db_path = '/net/data1/ml2017/database/test.db'
 
 Base = declarative_base()
-engine = create_engine('sqlite:///' + db_path, echo=True)
+engine = create_engine('sqlite:///' + db_path)
 
 association_table = Table('association', Base.metadata,
         Column('meas_id', Integer, ForeignKey('measurements.id')),
