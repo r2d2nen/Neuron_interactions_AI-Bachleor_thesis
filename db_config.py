@@ -17,13 +17,13 @@ class Measurement(Base):
 
     id = Column(Integer, primary_key=True)
     date = Column(Date)
-    value = Column(Float)
+    observable = Column(Float)
     energy = Column(Float)
 
     children = relationship('Tag', secondary=association_table)
 
     def __repr__(self):
-        return '<Measurement id=%d, date=%s, tag=%s, value=%d, energy=%d>' %(self.id, self.date, self.value, self.energy)
+        return '<Measurement id=%d, date=%s, observable=%d, energy=%d>' %(self.id, self.date, self.observable, self.energy)
 
 class Tag(Base):
     __tablename__ = 'tags'
