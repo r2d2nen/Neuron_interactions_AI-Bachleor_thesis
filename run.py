@@ -61,6 +61,8 @@ def main():
 
     if args.load:
        #gauss.populate_gp_model(data) #TODO(rikard, Martin) Check data format.
+       pass
+       
     else:
        gauss.populate_gp_model(X, Y)
     gauss.optimize()
