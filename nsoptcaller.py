@@ -32,10 +32,10 @@ class NsoptCaller:
         txt_set = open('resources/set_parameters.ini', 'r')
         txt=""
         for line in txt_set:
-            if 'evaluate_xsec' in line: break # takes me to the line containg "evaluate_exsec" 
+            if 'evaluate_xsec' in line: break # Takes me to the line containg "evaluate_exsec" 
         
         for line in txt_set:
-            if 'evaluate_ncsm' in line: break # saves the line until "evaluate_ncsm"
+            if 'evaluate_ncsm' in line: break # Saves the line until "evaluate_ncsm"
             txt += line
         
         # Replace the content of evaluate_exsec.ini with the desired lines.
@@ -48,7 +48,7 @@ class NsoptCaller:
         txt_set = open('resources/set_parameters.ini', 'r')
         txt=""
         for line in txt_set:
-            if 'evaluate_ncsm' in line: break # takes me to the line containg "evaluate_ncsm" 
+            if 'evaluate_ncsm' in line: break # Takes me to the line containg "evaluate_ncsm" 
         
         for line in txt_set:
             txt += line
