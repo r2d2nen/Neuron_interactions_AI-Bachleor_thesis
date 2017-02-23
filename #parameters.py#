@@ -136,7 +136,6 @@ class Parameters():
     def create_random_uniform_lecs():
 
         pass
-        
         # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
         # samples, num_of_LECs)
 

@@ -66,7 +66,7 @@ class NsoptCaller:
                     X = X.reshape(len(Elist),1)
                 else:
                     X = np.linspace(Emin,Emax,Esteps)
-                    X = X.reshape(Esteps, 1)
+                    X = X.reshape(1, Esteps)
                     #print "X from Emin, Emax, Esteps"
         else:
             X = np.random.uniform(-3.,3.,(20,1))

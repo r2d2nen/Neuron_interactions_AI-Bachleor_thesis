@@ -1,7 +1,7 @@
 import StringIO
 import argparse
 import numpy as np
-
+from parameters import Parameters
 #import project files
 from gaussfit import Gaussfit
 from nsoptcaller import NsoptCaller
@@ -27,6 +27,9 @@ def main():
     nsopt = NsoptCaller()
     gauss = Gaussfit()
     dm = Datamanager()
+    param = Parameters(0.1, 100,)
+
+    LECS = param.create_lhs_lecs()
 
     # Read input arguments to get input vector
     X = nsopt.read_ini(args)
@@ -41,7 +44,7 @@ def main():
     if args.nsopt:
         Y = nsopt.get_nsopt_observable()
         Y = np.trim_zeros(Y)
-        Y = Y.reshape(len(Y),1)
+        Y = Y.reshape(1, len(Y))
     else:
         Y = np.sin(X) + np.random.randn(20,1)*0.03
 
