@@ -52,7 +52,7 @@ class NsoptCaller:
         for line in txt_set:
             txt += line
         
-        # Replace the content of evaluate_exsec.ini with the desired lines.
+        # Replace the content of evaluate_xsec.ini with the desired lines.
         txt_ncsm = open('resources/evaluate_ncsm.ini', 'w')
         txt_ncsm.write(txt)
 
