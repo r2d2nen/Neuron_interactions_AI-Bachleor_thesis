@@ -35,12 +35,12 @@ def main():
     # Load all data with the right tags and convert to array
     if args.load:
         print args.load
-        data = dm.read(args.load[0])
+        data_list = dm.read(args.load[0])
         #TODO(Martin) Format data from data objects
         observables = []
         energies = []
         LECs = []
-        for row in data:
+        for row in data_list:
             observables.append(row.observable)
             energies.append(row.energy)
             LECs.append(row.LECs)
@@ -60,7 +60,7 @@ def main():
     gauss.set_gp_kernel()
 
     if args.load:
-       gauss.populate_gp_model(data) #TODO(rikard, Martin) Check data format.
+       #gauss.populate_gp_model(data) #TODO(rikard, Martin) Check data format.
     else:
        gauss.populate_gp_model(X, Y)
     gauss.optimize()

@@ -9,7 +9,7 @@ class Datamanager():
     The datamanager object acts as an interface to the projects database
     It allows you to either save a new measurement as a line in the database,
     or to retrieve previous measurements based on a tag system.
-    When adding new lines you must specify a list of tags (for example 'scattering_trainingset')
+    When adding new lines you must specify a list of tags (for example ['scattering', 'trainingset'])
     Whenever you want to use the data, you provide another list of tags and receive all data entries with that tag
     '''
 
@@ -87,8 +87,7 @@ class Data():
     def __init__(self, Meas):
         self.observable = Meas.observable
         self.energy = Meas.energy
-        self.LECs = []
-        #TODO(Martin) Add LECs
+        self.LECs = Meas.LECs
 
     def __repr__(self):
         return 'Datachunk: observable=%d, energy=%d'%(self.observable, self.energy)
