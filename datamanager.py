@@ -1,5 +1,6 @@
-from db_config import engine, Measurement
-from sqlalchemy.orm import sessionmaker
+from db_config import engine, Measurement, Tag, association_table
+from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy import func, distinct
 from datetime import datetime
 
 
@@ -8,37 +9,69 @@ class Datamanager():
     The datamanager object acts as an interface to the projects database
     It allows you to either save a new measurement as a line in the database,
     or to retrieve previous measurements based on a tag system.
-    When adding new lines you must specify a tag (for example 'scattering_trainingset')
-    Whenever you want to use the data, you provide the tag and will receive all sets of data with that tag
+    When adding new lines you must specify a list of tags (for example ['scattering', 'trainingset'])
+    Whenever you want to use the data, you provide another list of tags and receive all data entries with that tag
     '''
 
-    def __init__(self):
+    def __init__(self, echo=False):
+        engine.echo = echo
         self.Session = sessionmaker(bind=engine)
         self.s = self.Session()
 
-    def insert(self, tag='Default', value=None, energy=None, LECs=None):
+    def insert(self, tags=['default'], observable=None, energy=None, LECs=[]):
         date = datetime.now()
         #We may still have measurements without LEC information
-        if value is None or energy is None:
+        if observable is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
             return False
-        #Handle LECs
-        m = Measurement(tag=tag, date=date, value=value, energy=energy)
-        self.s.add(m)
+
+        #Create a new measurement row and query for mathching tags
+        new_meas = Measurement(date=date, observable=observable, energy=energy, LECs=LECs)
+        old_tags = self.s.query(Tag).filter(Tag.tag.in_(tags)).all()
+        if not old_tags:
+            #If there are no matching tags in database, add all of them
+            for tag in tags:
+                new_tag = Tag(tag=tag)
+                self.s.add(new_tag)
+                m.children.append(new_tag)
+        else:
+            #If one or more tags are new, first connect the old ones then create the new ones
+            for tag in old_tags:
+                if tag.tag in tags:
+                    m.children.append(tag)
+                    tags.remove(tag.tag)
+            for tag in tags:
+                new_tag = Tag(tag=tag)
+                self.s.add(new_tag)
+                m.children.append(new_tag)
+
+        self.s.add(new_meas)
         self.s.commit()
         return True
 
     '''Returns a Data object for every line matching the specified tag'''
-    def read(self, tag):
+    def read(self, tags=[]):
         data_objects = []
-        for meas in self.s.query(Measurement).filter_by(tag=tag):
+        #The database doesn't like empty lists
+        if not tags:
+            return []
+        #Find all rows in association matching all given tags
+        relation_subq = self.s.query(association_table.c.meas_id).\
+                join(Tag).filter(Tag.tag.in_(tags)).\
+                group_by(association_table.c.meas_id).\
+                having(func.count(distinct(association_table.c.tag_id)) >= len (tags)).\
+                subquery()
+        matches = self.s.query(Measurement).join(relation_subq).all()
+        
+        #Use data objects as a collection of the data.
+        for meas in matches:
             data_objects.append(Data(meas))
         return data_objects
 
     '''Returns a list of all used tags'''
     def list_tags(self):
         tags = []
-        for tag in self.s.query(Measurement.tag):
+        for tag in self.s.query(Tag.tag):
             if tag[0] not in tags:
                 tags.append(tag[0])
         return tags
@@ -46,21 +79,24 @@ class Datamanager():
 class Data():
     '''
     This class defines the "data-chunk" that will be returned from the Datamanager.read function
-    The desired data will be available through instance variables (self.value, self.energy, self.LEC)
+    The desired data will be available through instance variables
+    (self.observable, self.energy, self.LEC)
     '''
 
     def __init__(self, Meas):
-        self.value = Meas.value
+        self.observable = Meas.observable
         self.energy = Meas.energy
-        #Add LECs
+        self.LECs = Meas.LECs
 
     def __repr__(self):
-        return 'Datachunk: value=%d, energy=%d'%(self.value, self.energy)
+        return 'Datachunk: observable=%d, energy=%d'%(self.observable, self.energy)
 
 if __name__ == '__main__':
-    dm = Datamanager()
-    dm.insert(tag='tested', value=15, energy=99)
-    #data = dm.read('test')
-    #for d in data:
-    #    print d
-    print dm.list_tags()
+    dm = Datamanager(echo=True)
+    #dm.insert(tags=['sgt', 'training', 'test'], observable=100, energy=50)
+    #dm.insert(tags=['sgt', 'training'], observable=20, energy=40)
+    #dm.insert(tags=['sgt', 'training'], observable=10, energy=5)
+    #dm.insert(tags=['sgt', 'validation'], observable=90, energy=55)
+
+    print dm.read(['validation'])
+
