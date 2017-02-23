@@ -1,14 +1,29 @@
 from parameters import Parameters
+from nsoptcaller import NsoptCaller
+#from gaussfit import Gaussfit
+from datamanager import Datamanager
 import numpy as np
 
-param = Parameters(0.1, 50)
+param = Parameters(0.1, 3)
+nsopt = NsoptCaller()
+#gauss = Gaussfit()
+dm = Datamanager(echo=True)
 
-print(param.create_monospaced_lecs())
-print(param.create_lhs_lecs())
+lecs = param.create_lhs_lecs()
 
-zero = np.zeros((5,5))
-ones = np.ones(5)
-#print(zero)
-#print(ones)
+#nsopt.read_ini(None) #I think args is not used
+nsopt.X = 50
+observables = nsopt.get_nsopt_observable(lecs)
 
-#print(zero+ones)
+print '###Energy'
+print nsopt.X
+print '###Observables'
+print observables
+print '###LECs'
+print lecs
+
+#print(param.create_monospaced_lecs())
+#print(param.create_lhs_lecs())
+
+
+
