@@ -1,9 +1,7 @@
 TODO-lista
 ======
-- Komma igång med git
-- Kunna köra GPy både testfunktion och uppmätta tvärsnittet
-- Hur kan vi spara GPy-modellerna
+- argparse, find a good solution for how we will run run.py in the future
+- parameters, develop parameters.py to support LECs and parameter spaces
+- database, add support for multiple tags, some more utility functions
 
-Workflow
----
 
