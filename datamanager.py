@@ -33,17 +33,17 @@ class Datamanager():
             for tag in tags:
                 new_tag = Tag(tag=tag)
                 self.s.add(new_tag)
-                m.children.append(new_tag)
+                new_meas.children.append(new_tag)
         else:
             #If one or more tags are new, first connect the old ones then create the new ones
             for tag in old_tags:
                 if tag.tag in tags:
-                    m.children.append(tag)
+                    new_meas.children.append(tag)
                     tags.remove(tag.tag)
             for tag in tags:
                 new_tag = Tag(tag=tag)
                 self.s.add(new_tag)
-                m.children.append(new_tag)
+                new_meas.children.append(new_tag)
 
         self.s.add(new_meas)
         self.s.commit()
