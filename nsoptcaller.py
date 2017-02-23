@@ -57,7 +57,6 @@ class NsoptCaller:
         txt_ncsm.write(txt)
 
 
-
         # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
         config.write(open('resources/evaluate_xsec.ini').read())
@@ -95,7 +94,7 @@ class NsoptCaller:
                     X = X.reshape(len(Elist),1)
                 else:
                     X = np.linspace(Emin,Emax,Esteps)
-                    X = X.reshape(Esteps, 1)
+                    X = X.reshape(1, Esteps)
                     #print "X from Emin, Emax, Esteps"
         else:
             X = np.random.uniform(-3.,3.,(20,1))
@@ -139,7 +138,7 @@ class NsoptCaller:
             if i == 0:
                 nsopt_observables = temp
             else:
-                nsopt_observables = np.vstack((nsopt_observable, temp))
+                nsopt_observables = np.vstack((nsopt_observables, temp))
         
 
             #print nsopt_observables
