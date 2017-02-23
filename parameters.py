@@ -41,7 +41,7 @@ class Parameters():
             'c1': (-0.8329, 0.2784, 1.1113,0.3043),
             #'c2': (2.7946, 5.3258, 1.0754),
             'c3': (-4.3601, -3.4474, 0.9128, 0.1506),
-            'c4': (1.8999, 4.2353, , 2.3354, 0.2179),
+            'c4': (1.8999, 4.2353, 2.3354, 0.2179),
             #'d1+d2': (4.4636, 5.4505, 0.1378),
             #'d3': (-4.8549, -4.4583, 0.2302),
             #'d5': (-0.2992, 0.0233, 0.1407),
@@ -86,6 +86,7 @@ class Parameters():
             self.volume_length[idx] = self.lect_dict[name][2]*self.interval
         
     def create_monospaced_lecs(self):
+        """Returns monospaced grid of LECs"""
         # num_of_points must be an integer on the imaginary  axis
 
         range_list = []
