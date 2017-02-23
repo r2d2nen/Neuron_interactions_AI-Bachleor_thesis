@@ -1,3 +1,4 @@
+
 from resources import python_nsopt
 import numpy as np
 import os
@@ -59,7 +60,6 @@ class NsoptCaller:
         txt_ncsm.close()
 
 
-        # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
         config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
