@@ -37,22 +37,33 @@ class NsoptCaller:
         cp_set = ConfigParser.ConfigParser()
         cp_set.readfp(config_set)
         
+        # Read and store the desiered lines
         txt_set = open('resources/set_parameters.ini', 'r')
-        txt="[section]"
-        for line in txt.readlines():
-            print('1' + line)
-            if 'evaluate_exsec' in line: continue # takes me to the line containg "evaluate_exsec" 
+        txt='[section]\n'
+        for line in txt_set:
+            if 'evaluate_exsec' in line: break # takes me to the line containg "evaluate_exsec" 
         
-        for line in txt:
+        for line in txt_set:
+            if 'evaluate_ncsm' in line: break # saves the line until "evaluate_ncsm"
             txt += line
-            if 'evaluate_ncsm' in line: continue # saves the line until "evaluate_ncsm" 
-        print "start"
-        print(txt)
-        print "done"
         
-        #txt_exsec = open(resources/evaluate_exsec.ini)
-        #txt_exsec.truncate
+        # Replace the content of evaluate_exsec.ini with the desired lines.
+        txt_exsec = open('resources/evaluate_exsec.ini', 'w')
+        txt_exsec.write(txt)
         
+        
+        # Read and store the desiered lines
+        txt_set = open('resources/set_parameters.ini', 'r')
+        txt='[section]\n'
+        for line in txt_set:
+            if 'evaluate_ncsm' in line: break # takes me to the line containg "evaluate_ncsm" 
+        
+        for line in txt_set:
+            txt += line
+        
+        # Replace the content of evaluate_exsec.ini with the desired lines.
+        txt_ncsm = open('resources/evaluate_ncsm.ini', 'w')
+        txt_ncsm.write(txt)
 
 
 
