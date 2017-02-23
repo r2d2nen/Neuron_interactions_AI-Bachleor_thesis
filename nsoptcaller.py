@@ -30,7 +30,7 @@ class NsoptCaller:
         
         # Read and store the desiered lines
         txt_set = open('resources/set_parameters.ini', 'r')
-        txt='[section]\n'
+        txt=""
         for line in txt_set:
             if 'evaluate_xsec' in line: break # takes me to the line containg "evaluate_exsec" 
         
@@ -41,11 +41,12 @@ class NsoptCaller:
         # Replace the content of evaluate_exsec.ini with the desired lines.
         txt_xsec = open('resources/evaluate_xsec.ini', 'w')
         txt_xsec.write(txt)
+        txt_xsec.close()
         
         
         # Read and store the desiered lines
         txt_set = open('resources/set_parameters.ini', 'r')
-        txt='[section]\n'
+        txt=""
         for line in txt_set:
             if 'evaluate_ncsm' in line: break # takes me to the line containg "evaluate_ncsm" 
         
@@ -55,24 +56,26 @@ class NsoptCaller:
         # Replace the content of evaluate_xsec.ini with the desired lines.
         txt_ncsm = open('resources/evaluate_ncsm.ini', 'w')
         txt_ncsm.write(txt)
+        txt_ncsm.close()
 
 
         # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
+        config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
         config.seek(0, os.SEEK_SET)
     
         cp = ConfigParser.ConfigParser()
         cp.readfp(config)
     
-        observable = cp.get('section','observable')
+        observable = cp.get('dummysection','observable')
 
         # List of input energies
         Elist = None
 
         # tries to read Elist
         try:
-            Elist = cp.get('section','Elist')
+            Elist = cp.get('dummysection','Elist')
             Elist = np.fromstring(Elist,sep=" ")
             Elist = Elist[1:]
         except ConfigParser.NoOptionError:
@@ -81,9 +84,9 @@ class NsoptCaller:
         # tries to read Emin, Emax, Esteps
         if Elist is None:
             try:
-                Emin = cp.getfloat('section','Emin')
-                Emax = cp.getfloat('section','Emax')
-                Esteps = cp.getint('section','Esteps')
+                Emin = cp.getfloat('dummysection','Emin')
+                Emax = cp.getfloat('dummysection','Emax')
+                Esteps = cp.getint('dummysection','Esteps')
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
 
