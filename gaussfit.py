@@ -41,7 +41,7 @@ class Gaussfit:
         
 
     def optimize(self, num_restarts=1):
-        """Optimize the model. TODO: add verbose"""
+        """Optimize the model."""
         
         #Something worng, model doesn't always converge
         self.model.optimize_restarts(num_restarts=num_restarts, messages=True)
