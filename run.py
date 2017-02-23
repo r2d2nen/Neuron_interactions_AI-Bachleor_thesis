@@ -1,7 +1,7 @@
 import StringIO
 import argparse
 import numpy as np
-
+from parameters import Parameters
 #import project files
 from gaussfit import Gaussfit
 from nsoptcaller import NsoptCaller
@@ -27,6 +27,9 @@ def main():
     nsopt = NsoptCaller()
     gauss = Gaussfit()
     dm = Datamanager()
+    param = Parameters(0.1, 100,)
+
+    LECS = param.create_lhs_lecs()
 
     # Suggestion: X should have a more intuitive name (energy) //Martin
     # Read input arguments to get input vector
@@ -52,7 +55,7 @@ def main():
     if args.nsopt:
         Y = nsopt.get_nsopt_observable()
         Y = np.trim_zeros(Y)
-        Y = Y.reshape(len(Y),1)
+        Y = Y.reshape(1, len(Y))
     else:
         Y = np.sin(X) + np.random.randn(20,1)*0.03
 
@@ -61,6 +64,8 @@ def main():
 
     if args.load:
        #gauss.populate_gp_model(data) #TODO(rikard, Martin) Check data format.
+       pass
+       
     else:
        gauss.populate_gp_model(X, Y)
     gauss.optimize()

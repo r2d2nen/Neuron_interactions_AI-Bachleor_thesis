@@ -27,24 +27,52 @@ class NsoptCaller:
 
     def read_ini(self, args):
         """Reads .ini-file line by line and determines input arguments."""
+        
+        # Read and store the desiered lines
+        txt_set = open('resources/set_parameters.ini', 'r')
+        txt='[section]\n'
+        for line in txt_set:
+            if 'evaluate_xsec' in line: break # takes me to the line containg "evaluate_exsec" 
+        
+        for line in txt_set:
+            if 'evaluate_ncsm' in line: break # saves the line until "evaluate_ncsm"
+            txt += line
+        
+        # Replace the content of evaluate_exsec.ini with the desired lines.
+        txt_xsec = open('resources/evaluate_xsec.ini', 'w')
+        txt_xsec.write(txt)
+        
+        
+        # Read and store the desiered lines
+        txt_set = open('resources/set_parameters.ini', 'r')
+        txt='[section]\n'
+        for line in txt_set:
+            if 'evaluate_ncsm' in line: break # takes me to the line containg "evaluate_ncsm" 
+        
+        for line in txt_set:
+            txt += line
+        
+        # Replace the content of evaluate_xsec.ini with the desired lines.
+        txt_ncsm = open('resources/evaluate_ncsm.ini', 'w')
+        txt_ncsm.write(txt)
+
 
         # TODO(DANIEL/ERIK): Add functionality to use different .ini-files
         config = StringIO.StringIO()
-        config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
         config.seek(0, os.SEEK_SET)
     
         cp = ConfigParser.ConfigParser()
         cp.readfp(config)
     
-        observable = cp.get('dummysection','observable')
+        observable = cp.get('section','observable')
 
         # List of input energies
         Elist = None
 
         # tries to read Elist
         try:
-            Elist = cp.get('dummysection','Elist')
+            Elist = cp.get('section','Elist')
             Elist = np.fromstring(Elist,sep=" ")
             Elist = Elist[1:]
         except ConfigParser.NoOptionError:
@@ -53,9 +81,9 @@ class NsoptCaller:
         # tries to read Emin, Emax, Esteps
         if Elist is None:
             try:
-                Emin = cp.getfloat('dummysection','Emin')
-                Emax = cp.getfloat('dummysection','Emax')
-                Esteps = cp.getint('dummysection','Esteps')
+                Emin = cp.getfloat('section','Emin')
+                Emax = cp.getfloat('section','Emax')
+                Esteps = cp.getint('section','Esteps')
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
 
@@ -66,7 +94,7 @@ class NsoptCaller:
                     X = X.reshape(len(Elist),1)
                 else:
                     X = np.linspace(Emin,Emax,Esteps)
-                    X = X.reshape(Esteps, 1)
+                    X = X.reshape(1, Esteps)
                     #print "X from Emin, Emax, Esteps"
         else:
             X = np.random.uniform(-3.,3.,(20,1))
@@ -110,7 +138,7 @@ class NsoptCaller:
             if i == 0:
                 nsopt_observables = temp
             else:
-                nsopt_observables = np.vstack((nsopt_observable, temp))
+                nsopt_observables = np.vstack((nsopt_observables, temp))
         
 
             #print nsopt_observables

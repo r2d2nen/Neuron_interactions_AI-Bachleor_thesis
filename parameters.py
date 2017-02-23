@@ -6,7 +6,7 @@ class Parameters():
     All 
     """
 
-    def __init__(self, interval, center_lecs, nbr_of_samples):
+    def __init__(self, interval, nbr_of_samples, center_lecs=None):
         """Set up parameter volume from supplied intervals.
         
         Args:
@@ -75,7 +75,24 @@ class Parameters():
             ]
 
         # Set up dimensions of sample size and lecs.
+        self.interval = interval
         self.nbr_of_samples = nbr_of_samples
+        
+        self.nbr_of_lecs = len(self.lecs_dict.keys())
+        # If we have no center interval input use center of total interval as center
+        if center_lecs is None:
+             self.center_lecs = self.center_of_lecs_interval()
+        else:
+            self.center_lecs = np.reshape(center_lecs, (len(center_lecs, 1)))
+        
+        
+
+        # Array with the interval length in which each lec can vary with the current interval settings
+        self.volume_length = np.zeros(self.nbr_of_lecs)
+        for index, name in enumerate(self.lecs_name):
+            self.volume_length[index] = self.lecs_dict[name][3]*self.interval
+        
+    def create_monospaced_lecs(self):
 
         self.center_lecs = center_lecs.reshape(1,len(center_lecs))
         self.nbr_of_lecs = len(lec_dict.keys())
@@ -87,14 +104,15 @@ class Parameters():
         
     def create_monospaced_lecs(self):
         """Returns monospaced grid of LECs"""
+
         # num_of_points must be an integer on the imaginary  axis
 
         range_list = []
 
-        for idx,name in self.lecs_name:
+        for idx,name in enumerate(self.lecs_name):
             range_list.append((self.center_lecs[idx]-self.volume_length[idx]/2,
                                self.center_lecs[idx]+self.volume_length[idx]/2,
-                               self.num_of_samples))
+                               self.nbr_of_samples))
                             
         lecs_grid = np.mgrid[[slice(i,j,k) for i,j,k in range_list]].reshape(len(range_list),-1).T
 
@@ -103,6 +121,36 @@ class Parameters():
             
         """
         lecs_grid = np.mgrid[
+<<<<<<< HEAD
+            self.lecs_dict['Ct_1S0np'][0]:self.lecs_dict['Ct_1S0np'][1]:self.nbr_of_samples,
+            self.lecs_dict['Ct_1S0pp'][0]:self.lecs_dict['Ct_1S0pp'][1]:self.nbr_of_samples,
+            self.lecs_dict['Ct_1S0nn'][0]:self.lecs_dict['Ct_1S0nn'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_1S0'][0]:self.lecs_dict['C_1S0'][1]:self.nbr_of_samples,
+            self.lecs_dict['Ct_3S1'][0]:self.lecs_dict['Ct_3S1'][1]:self.nbr_of_samples,
+            self.lecs_dict['C3S1'][0]:self.lecs_dict['C3S1'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_3S1-3D1'][0]:self.lecs_dict['C_3S1-3D1'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_3P0'][0]:self.lecs_dict['C_3P0'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_1P1'][0]:self.lecs_dict['C_1P1'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_3P1'][0]:self.lecs_dict['C_3P1'][1]:self.nbr_of_samples,
+            self.lecs_dict['C_3P2'][0]:self.lecs_dict['C_3P2'][1]:self.nbr_of_samples,
+            self.lecs_dict['c_D'][0]:self.lecs_dict['c_D'][1]:self.nbr_of_samples,
+            self.lecs_dict['c_E'][0]:self.lecs_dict['c_E'][1]:self.nbr_of_samples,
+            self.lecs_dict['c1'][0]:self.lecs_dict['c1'][1]:self.nbr_of_samples,
+           # self.lecs_dict['c2'][0]:self.lecs_dict['c2'][1]:self.nbr_of_samples,
+            self.lecs_dict['c3'][0]:self.lecs_dict['c3'][1]:self.nbr_of_samples,
+            self.lecs_dict['c4'][0]:self.lecs_dict['c4'][1]:self.nbr_of_samples,
+           # self.lecs_dict['d1+d2'][0]:self.lecs_dict['d1+d2'][1]:self.nbr_of_samples,
+           # self.lecs_dict['d3'][0]:self.lecs_dict['d3'][1]:self.nbr_of_samples,
+           # self.lecs_dict['d5'][0]:self.lecs_dict['d5'][1]:self.nbr_of_samples,
+           # self.lecs_dict['d14-d15'][0]:self.lecs_dict['d14-d15'][1]:self.nbr_of_samples,
+           # self.lecs_dict['e14'][0]:self.lecs_dict['e14'][1]:self.nbr_of_samples,
+           # self.lecs_dict['e15'][0]:self.lecs_dict['e15'][1]:self.nbr_of_samples,
+           # self.lecs_dict['e16'][0]:self.lecs_dict['e16'][1]:self.nbr_of_samples,
+           # self.lecs_dict['e17'][0]:self.lecs_dict['e17'][1]:self.nbr_of_samples,
+           # self.lecs_dict['e18'][0]:self.lecs_dict['e18'][1]:self.nbr_of_samples,
+            ].reshape(self.nbr_of_lecs,-1).T
+
+=======
             lecs_dict['Ct_1S0np'][0]:lecs_dict['Ct_1S0np'][1]:num_of_points,
             lecs_dict['Ct_1S0pp'][0]:lecs_dict['Ct_1S0pp'][1]:num_of_points,
             lecs_dict['Ct_1S0nn'][0]:lecs_dict['Ct_1S0nn'][1]:num_of_points,
@@ -130,7 +178,6 @@ class Parameters():
             lecs_dict['e18'][0]:lecs_dict['e18'][1]:num_of_points,
             ].reshape(num_of_lecs,-1).T
         """
-        
         return lecs_grid
 
     
@@ -138,24 +185,28 @@ class Parameters():
         """Returns matrix of LECS sampled using latin hypercube sampling"""
         lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
         lec_min = self.center_lecs - self.volume_length
-
         lec_samples = 2*np.multiply(self.volume_length, lec_samples)
-        for i in xrange(self._nbr_of_samples):
-            lec_samples = lec_samples[:,i]
 
+        lec_samples += lec_min
         return lec_samples
         
                                
         
-        
     
-    def create_random_uniform_lecs(lecs_intervals, num_of_samples):
+    def create_random_uniform_lecs():
 
-        num_of_lecs = len(lecs_intervals.keys())
+        pass
         
         # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
         # samples, num_of_LECs)
-        
+
+    @property
+    def center_lecs(self):
+        return self.center_lecs
+
+    @center_lecs.setter
+    def center_lecs(self, center_lecs):
+        self.center_lecs = center_lecs
     @property
     def nbr_of_samples(self):
         return self.nbr_of_samples
@@ -164,4 +215,14 @@ class Parameters():
     def nbr_of_samples(self, nbr_of_samples):
         self._nbr_of_samples = nbr_of_samples
 
+    def center_of_lecs_interval(self):
+        """Returns vector with center of total LEC intervals"""
+        center_of_interval = np.zeros(self.nbr_of_lecs)
+        # For each LEC, set center of interval to lec_min to lec_range/2
+        for index, lec in enumerate(self.lecs_name):
+            value = self.lecs_dict[lec]
+            center_of_interval[index] = value[0] + value[2]/2
+        return center_of_interval
+        
+                        
     

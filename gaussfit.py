@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
 
 class Gaussfit:
-
+    """Handles GPR of input data. """
     def __init__(self):
         '''Initialize a gaussfit object '''
         self.kernel = None
@@ -23,7 +23,16 @@ class Gaussfit:
     
 
     def populate_gp_model(self, X, Y):
-        '''Creates a model based on given data and kernel''' 
+        '''Creates a model based on given data and kernel.
+        
+        Args:
+        X - numpy array with parameters fit should be done with regard to (
+        Y - numpy array with observable. (nbr_of_observables, different_obserable_types)
+        '''
+        X = X.reshape()
+        if Y.shape()[2]
+        Y = Y.reshape(len(X))
+        
         self.model = GPRegression(X, Y, self.kernel)
 
     def optimize(self, num_restarts=1):
@@ -34,5 +43,6 @@ class Gaussfit:
     def plot(self):
         '''Plot the GP-model'''
         '''Plot limits only for 1D-case'''
+        print(self.model)
         self.model.plot()
         plt.show()
