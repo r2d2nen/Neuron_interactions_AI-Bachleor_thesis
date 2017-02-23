@@ -101,7 +101,8 @@ class Parameters():
         self.volume_length = np.zeros(nbr_of_lecs)
         for idx,name in self.lecs_name:
             self.volume_length[idx] = self.lect_dict[name][2]*self.interval
-        
+
+    #TODO(DANIEL/ERIK): This does not really do what we want to
     def create_monospaced_lecs(self):
         """Returns monospaced grid of LECs"""
 
@@ -183,6 +184,7 @@ class Parameters():
     
     def create_lhs_lecs(self):
         """Returns matrix of LECS sampled using latin hypercube sampling"""
+        #TODO(DANIEL): IS THIS THE WRONG WAY??
         lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
         lec_min = self.center_lecs - self.volume_length
         lec_samples = 2*np.multiply(self.volume_length, lec_samples)
@@ -192,9 +194,8 @@ class Parameters():
         
                                
         
-    
+    #TODO(DANIEL): implement this shizzle
     def create_random_uniform_lecs():
-
         pass
         
         # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
