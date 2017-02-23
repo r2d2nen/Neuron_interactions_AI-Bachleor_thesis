@@ -59,7 +59,8 @@ class Gaussfit:
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
         (Ymodel, _) = self.model.predict(Xvalid)
-        plt.plot(mindists, np.absoulute(Ymodel-Yvalid))
+        plt.plot(mindists, abs(Ymodel-Yvalid), '.')
+        #TODO: fix x-scale
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated error')
         plt.show()
