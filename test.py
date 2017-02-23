@@ -1,6 +1,6 @@
 from parameters import Parameters
 from nsoptcaller import NsoptCaller
-#from gaussfit import Gaussfit
+from gaussfit import Gaussfit
 from datamanager import Datamanager
 import numpy as np
 
@@ -8,31 +8,44 @@ samples = 50
 
 param = Parameters(0.1, samples)
 nsopt = NsoptCaller()
-#gauss = Gaussfit()
-dm = Datamanager(echo=True)
+gauss = Gaussfit()
+dm = Datamanager(echo=False)
 
-lecs = param.create_lhs_lecs()
-
-#nsopt.read_ini(None) #I think args is not used
 nsopt.X = 50
-#observables = nsopt.get_nsopt_observable(lecs)
+train_obs = np.array([0])
+train_energy = np.array([0])
+train_lecs = np.array(np.zeros(16))
 
-#print '###Energy'
-#print nsopt.X
-#print '###Observables'
-#print observables
-#print '###LECs'
-#print lecs
+val_obs = np.array([0])
+val_energy = np.array([0])
+val_lecs = np.array(np.zeros(16))
+for row in dm.read(['sgt', 'training']):
+    train_obs = np.vstack((train_obs, row.observable))
+    train_energy = np.vstack((train_energy, row.energy))
+    train_lecs = np.vstack((train_lecs, row.LECs))
+for row in dm.read(['sgt', 'validation']):
+    val_obs = np.vstack((val_obs, row.observable))
+    val_energy = np.vstack((val_energy, row.energy))
+    val_lecs = np.vstack((val_lecs, row.LECs))
 
-#for i in range(samples):
-#    dm.insert(tags=['test', 'sgt'], observable=observables[i][0], energy=50, LECs=lecs[i])
+train_obs = np.delete(train_obs, 0, 0)
+train_energy = np.delete(train_energy, 0, 0)
+train_lecs = np.delete(train_lecs, 0, 0)
+
+val_obs = np.delete(val_obs, 0, 0)
+val_energy = np.delete(val_energy, 0, 0)
+val_lecs = np.delete(val_lecs, 0, 0)
+print(train_obs)
+print(train_lecs)
+gauss.set_gp_kernel(in_dim=16)
+gauss.populate_gp_model(train_obs, train_lecs)
 
 
-for row in dm.read(['test']):
-    print row.observable
+gauss.optimize()
 
-#print(param.create_monospaced_lecs())
-#print(param.create_lhs_lecs())
+gauss.plot()
 
-
+print (val_obs)
+    
+    
 
