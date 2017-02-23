@@ -32,7 +32,7 @@ class Gaussfit:
         """
         # Add row with energies to parameters for fit (c for col if that is that is the right way)
         if energy is not None:
-        lecs = np.r_(lecs, energy)
+            lecs = np.r_(lecs, energy)
         lecs.transpose()
 
         observable.transpose()
