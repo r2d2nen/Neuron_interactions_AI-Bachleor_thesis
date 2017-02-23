@@ -36,7 +36,7 @@ class Gaussfit:
         lecs.transpose()
 
         observable.transpose()
-        self.model = GPRregression(input_dim=lecs.shape()[0],observable, lecs ,self.kernel)
+        self.model = GPRegression(lecs, observable,self.kernel)
 
         
 

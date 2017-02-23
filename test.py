@@ -43,7 +43,7 @@ gauss.populate_gp_model(train_obs, train_lecs)
 
 gauss.optimize()
 
-gauss.plot()
+gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
 
 print (val_obs)
     
