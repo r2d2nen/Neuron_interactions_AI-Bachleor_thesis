@@ -39,8 +39,8 @@ class NsoptCaller:
             txt += line
         
         # Replace the content of evaluate_exsec.ini with the desired lines.
-        txt_exsec = open('resources/evaluate_xsec.ini', 'w')
-        txt_exsec.write(txt)
+        txt_xsec = open('resources/evaluate_xsec.ini', 'w')
+        txt_xsec.write(txt)
         
         
         # Read and store the desiered lines
