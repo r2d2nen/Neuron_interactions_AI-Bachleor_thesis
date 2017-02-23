@@ -52,3 +52,13 @@ class Gaussfit:
         print(self.model)
         self.model.plot()
         plt.show()
+
+    def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
+        """ Creates a plot showing the vallidated error """
+        alldists = cdist(Xvalid, Xlearn, 'euclidean')
+        mindists = np.min(alldists, axis=1)
+        (Ymodel, _) = self.model.predict(Xvalid)
+        plt.plot(mindists, np.absoulute(Ymodel-Yvalid))
+        plt.xlabel('Distance to closest training point')
+        plt.ylabel('Vallidated error')
+        plt.show()
