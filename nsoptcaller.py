@@ -28,27 +28,18 @@ class NsoptCaller:
     def read_ini(self, args):
         """Reads .ini-file line by line and determines input arguments."""
         
-
-        # Preparing and opening init file "set_parameters"
-        config_set = StringIO.StringIO()
-        config_set.write(open('resources/set_parameters.ini').read())
-        config_set.seek(0, os.SEEK_SET)
-
-        cp_set = ConfigParser.ConfigParser()
-        cp_set.readfp(config_set)
-        
         # Read and store the desiered lines
         txt_set = open('resources/set_parameters.ini', 'r')
         txt='[section]\n'
         for line in txt_set:
-            if 'evaluate_exsec' in line: break # takes me to the line containg "evaluate_exsec" 
+            if 'evaluate_xsec' in line: break # takes me to the line containg "evaluate_exsec" 
         
         for line in txt_set:
             if 'evaluate_ncsm' in line: break # saves the line until "evaluate_ncsm"
             txt += line
         
         # Replace the content of evaluate_exsec.ini with the desired lines.
-        txt_exsec = open('resources/evaluate_exsec.ini', 'w')
+        txt_exsec = open('resources/evaluate_xsec.ini', 'w')
         txt_exsec.write(txt)
         
         
