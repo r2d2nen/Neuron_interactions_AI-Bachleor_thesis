@@ -24,12 +24,10 @@ class NsoptCaller:
         '''Defining class variables'''
         self.energies = None
         self.observable = None
-        print("hi")
 
     def read_ini(self, args):
         """Reads .ini-file line by line and determines input arguments."""
         
-        print("hi")
 
         # Preparing and opening init file "set_parameters"
         config_set = StringIO.StringIO()
@@ -39,16 +37,18 @@ class NsoptCaller:
         cp_set = ConfigParser.ConfigParser()
         cp_set.readfp(config_set)
         
-        txt_set = open(resources/set_parameters.ini, 'r')
+        txt_set = open('resources/set_parameters.ini', 'r')
         txt="[section]"
-        for line in txt:
-            if evaluate_exsec in line: continue # takes me to the lin containg "evaluate_exsec" 
+        for line in txt.readlines():
+            print('1' + line)
+            if 'evaluate_exsec' in line: continue # takes me to the line containg "evaluate_exsec" 
         
         for line in txt:
-            txt.append(line)
-            if evaluate_ncsm in line: continue # saves the line until "evaluate_ncsm" 
-        
+            txt += line
+            if 'evaluate_ncsm' in line: continue # saves the line until "evaluate_ncsm" 
+        print "start"
         print(txt)
+        print "done"
         
         #txt_exsec = open(resources/evaluate_exsec.ini)
         #txt_exsec.truncate
