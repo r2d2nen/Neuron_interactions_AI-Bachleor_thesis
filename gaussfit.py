@@ -2,6 +2,7 @@ import numpy as np
 from GPy.kern import RBF
 from GPy.models import GPRegression
 from matplotlib import pyplot as plt
+from scipy.spatial.distance import cdist
 
 #Default values for the GP
 DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
