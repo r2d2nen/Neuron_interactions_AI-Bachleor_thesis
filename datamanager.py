@@ -18,16 +18,15 @@ class Datamanager():
         self.Session = sessionmaker(bind=engine)
         self.s = self.Session()
 
-    def insert(self, tags=['default'], observable=None, energy=None, LECs=None):
+    def insert(self, tags=['default'], observable=None, energy=None, LECs=[]):
         date = datetime.now()
         #We may still have measurements without LEC information
         if observable is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
             return False
-        #TODO(Martin) handle LECs
 
         #Create a new measurement row and query for mathching tags
-        new_meas = Measurement(date=date, observable=observable, energy=energy)
+        new_meas = Measurement(date=date, observable=observable, energy=energy, LECs=LECs)
         old_tags = self.s.query(Tag).filter(Tag.tag.in_(tags)).all()
         if not old_tags:
             #If there are no matching tags in database, add all of them

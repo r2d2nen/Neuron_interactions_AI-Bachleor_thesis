@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Tabl
 from sqlalchemy import orm
 from sqlalchemy.orm import relationship
 
-db_path = '/net/data1/ml2017/database/test.db'
+db_path = '/net/data1/ml2017/database/ml2017.db'
 
 Base = declarative_base()
 engine = create_engine('sqlite:///' + db_path)
@@ -20,6 +20,8 @@ class Measurement(Base):
     date = Column(Date)
     observable = Column(Float)
     energy = Column(Float)
+    n_max = Column(Float)
+    h_omega = Column(Float) #NOTE: hbar
     lec0 = Column(Float)
     lec1 = Column(Float)
     lec2 = Column(Float)
@@ -39,11 +41,15 @@ class Measurement(Base):
 
     children = relationship('Tag', secondary=association_table)
 
-    def __init__(self, date=None, observable=None, energy=None, LECs=[]):
+    def __init__(self, date=None, observable=None, energy=None, LECs=[], N=None, h_omega=None):
         self.date = date
         self.observable = observable
         self.energy = energy
         self.LECs = LECs
+        self.n_max = N
+        self.h_omega = h_omega
+        if len(LECs) == 0:
+            LECs = [None for i in range(16)]
         #I hate myself for writing these lines //Martin
         self.lec0 = LECs[0]
         self.lec1 = LECs[1]
