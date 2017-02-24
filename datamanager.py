@@ -5,13 +5,13 @@ from datetime import datetime
 
 
 class Datamanager():
-    '''
+    """
     The datamanager object acts as an interface to the projects database
     It allows you to either save a new measurement as a line in the database,
     or to retrieve previous measurements based on a tag system.
     When adding new lines you must specify a list of tags (for example ['scattering', 'trainingset'])
     Whenever you want to use the data, you provide another list of tags and receive all data entries with that tag
-    '''
+    """
 
     def __init__(self, echo=False):
         engine.echo = echo
@@ -49,7 +49,7 @@ class Datamanager():
         self.s.commit()
         return True
 
-    '''Returns a Data object for every line matching the specified tag'''
+    """Returns a Data object for every line matching the specified tag"""
     def read(self, tags=[]):
         data_objects = []
         #The database doesn't like empty lists
@@ -68,7 +68,7 @@ class Datamanager():
             data_objects.append(Data(meas))
         return data_objects
 
-    '''Returns a list of all used tags'''
+    """Returns a list of all used tags"""
     def list_tags(self):
         tags = []
         for tag in self.s.query(Tag.tag):
@@ -76,12 +76,26 @@ class Datamanager():
                 tags.append(tag[0])
         return tags
 
+    """
+    Returns the number of lines in the database matching these tags.
+    Useful to know exactly how many datapoints you're using.
+    """
+    def num_matches(self, tags=[]):
+        relation_subq = self.s.query(association_table.c.meas_id).\
+                join(Tag).filter(Tag.tag.in_(tags)).\
+                group_by(association_table.c.meas_id).\
+                having(func.count(distinct(association_table.c.tag_id)) >= len (tags)).\
+                subquery()
+        count = self.s.query(Measurement).join(relation_subq).count()
+
+        return count
+
 class Data():
-    '''
+    """
     This class defines the "data-chunk" that will be returned from the Datamanager.read function
     The desired data will be available through instance variables
     (self.observable, self.energy, self.LEC)
-    '''
+    """
 
     def __init__(self, Meas):
         self.observable = Meas.observable
