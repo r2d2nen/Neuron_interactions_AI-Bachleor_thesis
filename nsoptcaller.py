@@ -59,23 +59,21 @@ class NsoptCaller:
         txt_ncsm.write(txt)
         txt_ncsm.close()
 
-        #TODO(ERIK/RICKARD): Fix so that it reads from the big ini-file instead of the small
         config = StringIO.StringIO()
-        config.write('[dummysection]\n')
-        config.write(open('resources/evaluate_xsec.ini').read())
+        config.write(open('resources/set_parameters.ini').read())
         config.seek(0, os.SEEK_SET)
     
         cp = ConfigParser.ConfigParser()
         cp.readfp(config)
     
-        observable = cp.get('dummysection','observable')
+        observable = cp.get('evaluate_xsec','observable')
 
         # List of input energies
         Elist = None
 
         # tries to read Elist
         try:
-            Elist = cp.get('dummysection','Elist')
+            Elist = cp.get('evaluate_xsec','Elist')
             Elist = np.fromstring(Elist,sep=" ")
             Elist = Elist[1:]
         except ConfigParser.NoOptionError:
@@ -84,9 +82,9 @@ class NsoptCaller:
         # tries to read Emin, Emax, Esteps
         if Elist is None:
             try:
-                Emin = cp.getfloat('dummysection','Emin')
-                Emax = cp.getfloat('dummysection','Emax')
-                Esteps = cp.getint('dummysection','Esteps')
+                Emin = cp.getfloat('evaluate_xsec','Emin')
+                Emax = cp.getfloat('evaluate_xsec','Emax')
+                Esteps = cp.getint('evaluate_xsec','Esteps')
             except ConfigParser.NoOptionError:
                 print "No entries for Emin, Emax or Esteps"
 
