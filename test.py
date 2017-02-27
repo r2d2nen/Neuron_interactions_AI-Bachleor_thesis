@@ -5,8 +5,8 @@ from datamanager import Datamanager
 import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = false
-process_data = false
+generate_data = False
+process_data = False
 samples = 50
 generate_tags = ['sgt',]
 training_tags = ['sgt', 'training']
@@ -59,21 +59,21 @@ if process_data:
         val_energy = np.vstack((val_energy, row.energy))
         val_lecs = np.vstack((val_lecs, row.LECs))
 
-# Clean up initialized zeros
-train_obs = np.delete(train_obs, 0, 0)
-train_energy = np.delete(train_energy, 0, 0)
-train_lecs = np.delete(train_lecs, 0, 0)
+    # Clean up initialized zeros
+    train_obs = np.delete(train_obs, 0, 0)
+    train_energy = np.delete(train_energy, 0, 0)
+    train_lecs = np.delete(train_lecs, 0, 0)
 
-val_obs = np.delete(val_obs, 0, 0)
-val_energy = np.delete(val_energy, 0, 0)
-val_lecs = np.delete(val_lecs, 0, 0)
+    val_obs = np.delete(val_obs, 0, 0)
+    val_energy = np.delete(val_energy, 0, 0)
+    val_lecs = np.delete(val_lecs, 0, 0)
 
 
-# Set up Gaussfit stuff and plot our model error
-gauss.set_gp_kernel(in_dim=LEC_LENGTH)
-gauss.populate_gp_model(train_obs, train_lecs)
-gauss.optimize()
-gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+    # Set up Gaussfit stuff and plot our model error
+    gauss.set_gp_kernel(in_dim=LEC_LENGTH)
+    gauss.populate_gp_model(train_obs, train_lecs)
+    gauss.optimize()
+    gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
 
 
     
