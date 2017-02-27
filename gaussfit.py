@@ -54,6 +54,16 @@ class Gaussfit:
         self.model.plot()
         plt.show()
 
+    def validation_nr(self, Ymodel, Yvalid):
+         """Calculates a number that describes the validation of the plot."""
+         validationNumber = 0 
+         count = 0
+         while count < len(Ymodel):
+             validationNumber += abs(Ymodel[count]-Yvalid[count])/abs(Yvalid[count])
+             count += 1
+         
+         return validationNumber[0]/len(Ymodel)
+
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
@@ -71,4 +81,5 @@ class Gaussfit:
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 0, 1.1*max(abs((Ymodel-Yvalid)/Yvalid))])
         #TODO: fix x-scale
+        print("Validation number: %r") % (self.validation_nr(Ymodel, Yvalid))
         plt.show()
