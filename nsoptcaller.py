@@ -59,7 +59,7 @@ class NsoptCaller:
         txt_ncsm.write(txt)
         txt_ncsm.close()
 
-        #TODO(ERIK/RICKARD): fixa så att detta läser från stora ini-filen istället för de små
+        #TODO(ERIK/RICKARD): Fix so that it reads from the big ini-file instead of the small
         config = StringIO.StringIO()
         config.write('[dummysection]\n')
         config.write(open('resources/evaluate_xsec.ini').read())
