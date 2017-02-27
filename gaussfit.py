@@ -90,3 +90,5 @@ class Gaussfit:
         plt.figure(3)
         plt.plot(Xlearn, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
+        plt.show()
+        
