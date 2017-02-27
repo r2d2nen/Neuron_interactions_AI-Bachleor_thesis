@@ -83,3 +83,10 @@ class Gaussfit:
         #TODO: fix x-scale
         print("Validation number: %r") % (self.validation_nr(Ymodel, Yvalid))
         plt.show()
+        
+        # plot the model of training data with the model of walidation data 
+    def plot_model(self, Xvalid, Xlearn, Yvalid):
+        (Ymodel, _) = self.model.predict(Xvalid)
+        plt.figure(3)
+        plt.plot(Xlearn, Ymodel, 'bo')
+        plt.plot(Xvalid, Yvalid, 'rx')
