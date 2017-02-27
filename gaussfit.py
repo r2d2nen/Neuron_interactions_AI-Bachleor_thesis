@@ -68,7 +68,7 @@ class Gaussfit:
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
-        (Ymodel, _) = self.model.predict(Xvalid)
+        (Ymodel, _) = self.model.predict(Xlearn)
         plt.figure(1)
         plt.plot(mindists, abs(Ymodel-Yvalid), '.')
         plt.xlabel('Distance to closest training point')
@@ -86,7 +86,7 @@ class Gaussfit:
         
         # plot the model of training data with the model of walidation data 
     def plot_model(self, Xvalid, Xlearn, Yvalid):
-        (Ymodel, _) = self.model.predict(Xvalid)
+        (Ymodel, _) = self.model.predict(Xlearn)
         plt.figure(3)
         plt.plot(Xlearn, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
