@@ -93,7 +93,7 @@ class Parameters():
             self.volume_length[index] = self.lecs_dict[name][3]*self.interval
         
     def create_monospaced_lecs(self):
-
+        
         self.center_lecs = center_lecs.reshape(1,len(center_lecs))
         self.nbr_of_lecs = len(lec_dict.keys())
 
@@ -192,15 +192,32 @@ class Parameters():
         lec_samples += lec_min
         return lec_samples
         
-                               
+    def create_random_uniform_lecs(self):
+        """Creates matrix of random lec samples within the
+        specified interval"""
         
-    #TODO(DANIEL): implement this shizzle
-    def create_random_uniform_lecs():
-        pass
-        
-        # LEC_grid = np.random.uniform([vector of min values], [vector of max values], (num of
-        # samples, num_of_LECs)
+        minvec = self.center_lecs - self.volume_length/2
+        maxvec = self.center_lecs + self.volume_length/2
+    
+        lec_samples = np.random.uniform(minvec, maxvec, (self.nbr_of_samples, self.nbr_of_lecs))
 
+        return lec_samples
+
+    def create_lecs_1dof(self,lecindex=0):
+        """Returns matrix where only one lec is varied, the varied lec is given by lecindex.
+        The varied points are equally spaced from the minimum value of the specified
+        interval to the maximum value."""
+
+        lec_samples = np.tile(self.center_lecs,[self.nbr_of_samples,1])
+
+        minval = self.center_lecs[lecindex]-self.volume_length[lecindex]/2
+        maxval = self.center_lecs[lecindex]+self.volume_length[lecindex]/2
+        onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
+
+        lec_samples[:,lecindex] = onedof_lec
+
+        return lec_samples
+        
     @property
     def center_lecs(self):
         return self.center_lecs
