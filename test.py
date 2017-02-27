@@ -6,11 +6,11 @@ import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = False
-process_data = False
+process_data = True
 samples = 50
 generate_tags = ['sgt',]
 training_tags = ['sgt', 'training']
-validation_tags = ['sgt', 'training']
+validation_tags = ['sgt', 'validation']
 LEC_LENGTH = 16
 energies = 50
 
@@ -74,7 +74,8 @@ if process_data:
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
-
+    gauss.plot_model(val_lecs, train_lecs, val_obs)
+    
 
     
 
