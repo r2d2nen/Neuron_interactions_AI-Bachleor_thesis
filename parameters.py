@@ -77,8 +77,8 @@ class Parameters():
         # Set up dimensions of sample size and lecs.
         self.interval = interval
         self.nbr_of_samples = nbr_of_samples
-        
         self.nbr_of_lecs = len(self.lecs_dict.keys())
+        
         # If we have no center interval input use center of total interval as center
         if center_lecs is None:
              self.center_lecs = self.center_of_lecs_interval()
@@ -99,7 +99,7 @@ class Parameters():
 
         # Array with the interval length in which each lec can vary with the current interval settings
         self.volume_length = np.zeros(nbr_of_lecs)
-        for idx,name in self.lecs_name:
+        for idx,name in enumerate(self.lecs_name):
             self.volume_length[idx] = self.lect_dict[name][2]*self.interval
 
     #TODO(DANIEL/ERIK): This does not really do what we want to
