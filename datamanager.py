@@ -50,7 +50,7 @@ class Datamanager():
         return True
 
     """Returns a Data object for every line matching the specified tag"""
-    def read(self, tags=[]):
+    def read(self, tags):
         data_objects = []
         #The database doesn't like empty lists
         if not tags:
@@ -80,7 +80,7 @@ class Datamanager():
     Returns the number of lines in the database matching these tags.
     Useful to know exactly how many datapoints you're using.
     """
-    def num_matches(self, tags=[]):
+    def num_matches(self, tags):
         relation_subq = self.s.query(association_table.c.meas_id).\
                 join(Tag).filter(Tag.tag.in_(tags)).\
                 group_by(association_table.c.meas_id).\
