@@ -20,6 +20,7 @@ class Datamanager():
 
     def insert(self, tags=['default'], observable=None, energy=None, LECs=[]):
         date = datetime.now()
+        tags = copy(tags)
         #We may still have measurements without LEC information
         if observable is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
@@ -49,19 +50,36 @@ class Datamanager():
         self.s.commit()
         return True
 
-    """Returns a Data object for every line matching the specified tag"""
-    def read(self, tags):
+    """
+    Returns a Data object for every line matching the specified tags
+    When unique is True, the query will return only the rows matching the tags exactly
+    """
+    def read(self, tags, unique=False):
         data_objects = []
         #The database doesn't like empty lists
         if not tags:
             return []
         #Find all rows in association matching all given tags
-        relation_subq = self.s.query(association_table.c.meas_id).\
-                join(Tag).filter(Tag.tag.in_(tags)).\
-                group_by(association_table.c.meas_id).\
-                having(func.count(distinct(association_table.c.tag_id)) >= len (tags)).\
-                subquery()
-        matches = self.s.query(Measurement).join(relation_subq).all()
+        if unique:
+            print 'Unique not properly implemented yet'
+            '''relation_subq = self.s.query(association_table).\
+                    join(Tag).filter(Tag.tag.in_(tags)).\
+                    subquery()
+            print 'matching unique'
+
+            matches = self.s.query(Measurement).join(relation_subq).\
+                    group_by(association_table.c.meas_id).\
+                    having(func.count(distinct(association_table.c.tag_id)) == len(tags)).\
+                    all()
+            '''
+        else:
+            relation_subq = self.s.query(association_table.c.meas_id).\
+                    join(Tag).filter(Tag.tag.in_(tags)).\
+                    group_by(association_table.c.meas_id).\
+                    having(func.count(distinct(association_table.c.tag_id)) >= len(tags)).\
+                    subquery()
+
+            matches = self.s.query(Measurement).join(relation_subq).all()
         
         #Use data objects as a collection of the data.
         for meas in matches:
@@ -75,6 +93,13 @@ class Datamanager():
             if tag[0] not in tags:
                 tags.append(tag[0])
         return tags
+
+    """Returns all used combinations of tags, and the number of measurements associated"""
+    def list_combinations(self):
+        combinations = []
+        c = self.s.query(association_table).all()
+        tags = self.s.query(Tag).all()
+
 
     """
     Returns the number of lines in the database matching these tags.
