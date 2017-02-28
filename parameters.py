@@ -81,11 +81,26 @@ class Parameters():
         self.nbr_of_lecs = len(self.lecs_dict.keys())
         self.nbr_of_points_1d = nbr_of_points_1d
         
-        # If we have no center interval input use center of total interval as center
+        # If we have no center interval input use default file as center_lecs
         if center_lecs is None:
-             self.center_lecs = self.center_of_lecs_interval()
+
+            pot = 'N2LOsim'
+            lam = 500
+            cut = 290
+
+            removed_lecs = (14, 17, 18, 19, 20, 21, 22, 23, 24, 25)
+            lec_values = np.loadtxt(
+                './resources/%s-%d-%d.LEC_values.txt' % (pot, lam, cut))
+            lec_values = np.delete(lec_values, removed_lecs)
+
+            self.center_lecs = np.reshape(lec_values, (1, len(lec_values)))
+
+        # use center of the intervals as center_lecs if specified
+        elif center_lecs == "center_of_interval":
+            self.center_lecs = self.center_of_lecs_interval()
+            
         else:
-            self.center_lecs = np.reshape(center_lecs, (len(center_lecs, 1)))
+            self.center_lecs = np.reshape(center_lecs, (1, len(center_lecs)))
         
         
 
@@ -100,12 +115,14 @@ class Parameters():
         range_list = []
 
         for idx in np.arange(len(self.center_lecs)):
-            range_list.append((self.center_lecs[idx]-self.volume_length[idx]/2,
-                               self.center_lecs[idx]+self.volume_length[idx]/2,
+            range_list.append((self.center_lecs[idx]-self.volume_length[idx],
+                               self.center_lecs[idx]+self.volume_length[idx],
                                self.nbr_of_points_1d*1j))
                             
         lecs_grid = np.mgrid[[slice(i,j,k) for i,j,k in range_list]].reshape(len(range_list),-1).T
 
+        lecs_grid = replace_superflous_lecs(lecs_grid)
+        
         return lecs_grid
 
     
@@ -117,17 +134,22 @@ class Parameters():
         lec_samples = 2*np.multiply(self.volume_length, lec_samples)
 
         lec_samples += lec_min
+
+        lec_samples = replace_superflous_lecs(lec_samples)
+        
         return lec_samples
         
     def create_random_uniform_lecs(self):
         """Creates matrix of random lec samples within the
         specified interval"""
         
-        minvec = self.center_lecs - self.volume_length/2
-        maxvec = self.center_lecs + self.volume_length/2
+        minvec = self.center_lecs - self.volume_length
+        maxvec = self.center_lecs + self.volume_length
     
         lec_samples = np.random.uniform(minvec, maxvec, (self.nbr_of_samples, self.nbr_of_lecs))
 
+        lec_samples = replace_superflous_lecs(lec_samples)
+        
         return lec_samples
 
     def create_lecs_1dof(self,lecindex=0):
@@ -137,12 +159,14 @@ class Parameters():
 
         lec_samples = np.tile(self.center_lecs,[self.nbr_of_samples,1])
 
-        minval = self.center_lecs[lecindex]-self.volume_length[lecindex]/2
-        maxval = self.center_lecs[lecindex]+self.volume_length[lecindex]/2
+        minval = self.center_lecs[lecindex]-self.volume_length[lecindex]
+        maxval = self.center_lecs[lecindex]+self.volume_length[lecindex]
         onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
 
         lec_samples[:,lecindex] = onedof_lec
 
+        lec_samples = replace_superflous_lecs(lec_samples)
+        
         return lec_samples
         
     @property
@@ -169,5 +193,12 @@ class Parameters():
             center_of_interval[index] = value[0] + value[2]/2
         return center_of_interval
         
-                        
-    
+    def replace_superflous_lecs(self, lec_samples):
+
+        lec_samples[:,11] = self.center_lecs[0,11]
+        lec_samples[:,12] = self.center_lecs[0,12]
+        
+        return lec_samples
+
+        
+        
