@@ -2,7 +2,7 @@ from db_config import engine, Measurement, Tag, association_table
 from sqlalchemy.orm import sessionmaker, aliased
 from sqlalchemy import func, distinct
 from datetime import datetime
-
+from collections import Counter
 
 class Datamanager():
     """
@@ -20,7 +20,7 @@ class Datamanager():
 
     def insert(self, tags=['default'], observable=None, energy=None, LECs=[]):
         date = datetime.now()
-        tags = copy(tags)
+        tags = tags[:]
         #We may still have measurements without LEC information
         if observable is None or energy is None:
             print 'Measurement or energy may not be None, exiting insert'
@@ -96,9 +96,31 @@ class Datamanager():
 
     """Returns all used combinations of tags, and the number of measurements associated"""
     def list_combinations(self):
+        counts = []
         combinations = []
-        c = self.s.query(association_table).all()
-        tags = self.s.query(Tag).all()
+        relations = self.s.query(association_table.c.meas_id, Tag.tag).join(Tag).all()
+        index = relations[0][0]
+        tags = []
+        for i, row in enumerate(relations):
+            if row[0] == index:
+                tags.append(row[1])
+            else:
+                new = True
+                for comb in combinations:
+                    if Counter(comb[0]) == Counter(tags):
+                        comb[1] += 1
+                        new = False
+                        break
+                if new:
+                    combinations.append([tags, 1])
+
+                index = row[0]
+                tags = [row[1]]
+
+        for c in combinations:
+            print c
+
+
 
 
     """
@@ -136,6 +158,4 @@ if __name__ == '__main__':
     #dm.insert(tags=['sgt', 'training'], observable=20, energy=40)
     #dm.insert(tags=['sgt', 'training'], observable=10, energy=5)
     #dm.insert(tags=['sgt', 'validation'], observable=90, energy=55)
-
-    print dm.read(['validation'])
-
+    dm.list_combinations()
