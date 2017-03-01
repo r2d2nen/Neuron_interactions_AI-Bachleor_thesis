@@ -161,7 +161,9 @@ class Datamanager():
                 #Starts the next entry
                 index = row[0]
                 tags = [row[1]]
-
+        #Must add the last count manually
+        if Counter(comb[0]) == Counter(tags):
+            comb[1] += 1
         print '\nNumber of points\tTags'
         for c in combinations:
             print str(c[1]) + '\t\t\t' + str(c[0])

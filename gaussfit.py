@@ -54,21 +54,21 @@ class Gaussfit:
         self.model.plot()
         plt.show()
 
-    def validation_nr(self, Ymodel, Yvalid):
-         """Calculates a number that describes the validation of the plot."""
-         validationNumber = 0 
-         count = 0
-         while count < len(Ymodel):
-             validationNumber += abs(Ymodel[count]-Yvalid[count])/abs(Yvalid[count])
-             count += 1
-         
-         return validationNumber[0]/len(Ymodel)
+
+    """A measure of how great the model's error is compared to validation points
+    Currently uses the average relative error
+    """
+    def get_model_error(self, Xvalid, Yvalid):
+        (Ymodel, _) = self.model.predict(Xvalid)
+        #Sum of a numpy array returns another array, we use the first (and only) element
+        return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
+
 
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
-        (Ymodel, _) = self.model.predict(Xlearn)
+        (Ymodel, _) = self.model.predict(Xvalid)
         plt.figure(1)
         plt.plot(mindists, abs(Ymodel-Yvalid), '.')
         plt.xlabel('Distance to closest training point')
@@ -81,7 +81,6 @@ class Gaussfit:
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 0, 1.1*max(abs((Ymodel-Yvalid)/Yvalid))])
         #TODO: fix x-scale
-        print("Validation number: %r") % (self.validation_nr(Ymodel, Yvalid))
         plt.show()
         
         # plot the model of training data with the model of walidation data 
