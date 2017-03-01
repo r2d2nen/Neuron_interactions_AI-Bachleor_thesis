@@ -4,6 +4,15 @@ class Parameters():
     """Handles input and generation of LECs.
     """
 
+
+    # PARAMETER OVERHAUL
+    # DEFINE INTERVAL (probably do interval/2 on each side
+    # Bring back functionality for center_lecs as center of interval
+    # Can we move outside of physical boundarys for lecs?
+    # 
+    #
+    #
+    
     def __init__(self, interval, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3):
         """Set up parameter volume from supplied intervals.
         
