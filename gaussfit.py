@@ -39,6 +39,27 @@ class Gaussfit:
         observable.transpose()
         self.model = GPRegression(lecs, observable,self.kernel)
 
+    def rescale(inMatrix):
+        """Rescales the input parameters that Gpy handles,
+           so that they are in the interval [-1,1] #Remove 16xnr 
+        """
+       
+        def rescale(colum):
+            """Rescales the input parameters that Gpy handles,
+            so that they are in the interval [-1,1] #Remove 16xnr 
+            """
+        
+            translation = -(colum.max()+colum.min())/2
+            new_array = colum + translation  #translation all the values
+            scale = new_array.max()
+            if scale == 0: # All values are 0 
+                return new_array
+            new_array =  new_array/scale #scale all the values
+        
+            return new_array
+            
+        return np.apply_along_axis( rescale, axis=0, arr=inMatrix) 
+        
         
 
     def optimize(self, num_restarts=1):
