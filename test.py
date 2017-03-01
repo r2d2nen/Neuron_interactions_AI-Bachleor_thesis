@@ -7,7 +7,7 @@ import numpy as np
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = True
 process_data = False
-samples = 1100
+samples = 200
 generate_tags = ['sgt50','validation1100','D_500_290_10%']
 training_tags = ['sgt', 'training']
 validation_tags = ['sgt', 'validation']
@@ -24,13 +24,21 @@ dm = Datamanager(echo=False)
 
 # Sample generation, add to database. Do we want to generate and are the tags not used before?
 # TODO(DANIEL): Add question if used really wants to add data to tags already used
-if generate_data and dm.num_matches(generate_tags) > 0:
+#for samples in xrange(200, 1600, 100):
+    
+generate_tags = ['sgt50', 'training' + str(samples), 'D_500_290_10%']
+if generate_data and dm.num_matches(generate_tags) <= 0:
+    print('hej')
+    param.nbr_of_samples = samples
+    
     lecs = param.create_lhs_lecs()
+    print('THIS IS SHIT: %r %r %r') % (samples, generate_tags, lecs)
+    print('Getting observables')
     observables = nsopt.get_nsopt_observable(lecs)
-    print(observables)
+    print('Inserting data')
     for i in xrange(samples):
         dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
-        
+    
     #for row in dm.read(['test']):
         #print row.observable
         #print(param.create_monospaced_lecs())
