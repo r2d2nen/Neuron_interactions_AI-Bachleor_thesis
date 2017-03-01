@@ -5,14 +5,14 @@ from datamanager import Datamanager
 import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
-samples = 50
-generate_tags = ['sgt',]
+generate_data = True
+process_data = False
+samples = 200
+generate_tags = ['sgt50','validation1100','D_500_290_10%']
 training_tags = ['sgt', 'training']
 validation_tags = ['sgt', 'validation']
 LEC_LENGTH = 16
-energies = 50
+energy = 50
 
 # Set up necessary classes)
 param = Parameters(0.1, samples)
@@ -22,21 +22,28 @@ dm = Datamanager(echo=False)
 
 
 
-# Sample generation, add to database, be sure to set tags before doing this.
-if generate_data:
+# Sample generation, add to database. Do we want to generate and are the tags not used before?
+# TODO(DANIEL): Add question if used really wants to add data to tags already used
+#for samples in xrange(200, 1600, 100):
+    
+generate_tags = ['sgt50', 'training' + str(samples), 'D_500_290_10%']
+if generate_data and dm.num_matches(generate_tags) <= 0:
+    print('hej')
+    param.nbr_of_samples = samples
+    
     lecs = param.create_lhs_lecs()
+    print('THIS IS SHIT: %r %r %r') % (samples, generate_tags, lecs)
+    print('Getting observables')
     observables = nsopt.get_nsopt_observable(lecs)
-    for i in range(samples):
-        dm.insert(tags=generate_tags, observable=observables[i][0], energy=50, LECs=lecs[i])
-        
+    print('Inserting data')
+    for i in xrange(samples):
+        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
+    
     #for row in dm.read(['test']):
         #print row.observable
         #print(param.create_monospaced_lecs())
         #print(param.create_lhs_lecs())
             
-
-
-
 if process_data:
     nsopt.X = 50
 

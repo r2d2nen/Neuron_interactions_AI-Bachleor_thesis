@@ -2,8 +2,6 @@ import numpy as np
 import pyDOE as pydoe
 class Parameters():
     """Handles input and generation of LECs.
-    
-    All 
     """
 
     def __init__(self, interval, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3):
@@ -17,14 +15,10 @@ class Parameters():
         (used by create_monospaced_lecs)
         """
         
-
-        #TODO(Erik,Daniel): fixa default center_lecs
-
-        
         # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple
         # (min, max, interval, +-sigma)
-
         # Commented out LECS are for higher order approximations.
+        # C_E and C_D does not do anything for cross section.
         self.lecs_dict = {
             'Ct_1S0np': (-0.1519, -0.1464, 0.0055 , 0.002),
             'Ct_1S0pp': (-0.1512, -0.1454, 0.0058, 0.002),
@@ -128,14 +122,13 @@ class Parameters():
     
     def create_lhs_lecs(self):
         """Returns matrix of LECS sampled using latin hypercube sampling"""
-        #TODO(DANIEL): IS THIS THE WRONG WAY??
         lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
         lec_min = self.center_lecs - self.volume_length
         lec_samples = 2*np.multiply(self.volume_length, lec_samples)
 
         lec_samples += lec_min
 
-        lec_samples = replace_superflous_lecs(lec_samples)
+        lec_samples = self.replace_superflous_lecs(lec_samples)
         
         return lec_samples
         
@@ -155,8 +148,8 @@ class Parameters():
     def create_lecs_1dof(self,lecindex=0):
         """Returns matrix where only one lec is varied, the varied lec is given by lecindex.
         The varied points are equally spaced from the minimum value of the specified
-        interval to the maximum value."""
-
+        interval to the maximum value.
+        """
         lec_samples = np.tile(self.center_lecs,[self.nbr_of_samples,1])
 
         minval = self.center_lecs[lecindex]-self.volume_length[lecindex]
@@ -164,11 +157,27 @@ class Parameters():
         onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
 
         lec_samples[:,lecindex] = onedof_lec
-
         lec_samples = replace_superflous_lecs(lec_samples)
         
         return lec_samples
+
+    def center_of_lecs_interval(self):
+        """Returns vector with center of total LEC intervals."""
         
+        center_of_interval = np.zeros(self.nbr_of_lecs)
+        # For each LEC, set center of interval to lec_min to lec_range/2
+        for index, lec in enumerate(self.lecs_name):
+            value = self.lecs_dict[lec]
+            center_of_interval[index] = value[0] + value[2]/2
+        return center_of_interval
+        
+    def replace_superflous_lecs(self, lec_samples):
+        """Removed C_E and C_D since they do nothing."""
+        lec_samples[:,11] = self.center_lecs[0,11]
+        lec_samples[:,12] = self.center_lecs[0,12]
+        
+        return lec_samples
+
     @property
     def center_lecs(self):
         return self.center_lecs
@@ -183,22 +192,4 @@ class Parameters():
     @nbr_of_samples.setter
     def nbr_of_samples(self, nbr_of_samples):
         self._nbr_of_samples = nbr_of_samples
-
-    def center_of_lecs_interval(self):
-        """Returns vector with center of total LEC intervals"""
-        center_of_interval = np.zeros(self.nbr_of_lecs)
-        # For each LEC, set center of interval to lec_min to lec_range/2
-        for index, lec in enumerate(self.lecs_name):
-            value = self.lecs_dict[lec]
-            center_of_interval[index] = value[0] + value[2]/2
-        return center_of_interval
-        
-    def replace_superflous_lecs(self, lec_samples):
-
-        lec_samples[:,11] = self.center_lecs[0,11]
-        lec_samples[:,12] = self.center_lecs[0,12]
-        
-        return lec_samples
-
-        
         

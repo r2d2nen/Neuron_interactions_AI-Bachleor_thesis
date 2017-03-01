@@ -61,17 +61,23 @@ class Datamanager():
             return []
         #Find all rows in association matching all given tags
         if unique:
-            print 'Unique not properly implemented yet'
-            '''relation_subq = self.s.query(association_table).\
+            #Because of how queries work I split this query into 2 to make sure that
+            #entries with more tags than the given amount would not match
+            ids = self.s.query(association_table.c.meas_id).\
                     join(Tag).filter(Tag.tag.in_(tags)).\
-                    subquery()
-            print 'matching unique'
-
-            matches = self.s.query(Measurement).join(relation_subq).\
                     group_by(association_table.c.meas_id).\
+                    having(func.count(distinct(association_table.c.tag_id)) >= len(tags)).\
+                    all()
+            new_ids = []
+            for id in ids:
+                new_ids.append(id[0])
+
+            #This query will filter out any row with more tags than the number of given ones.
+            matches = self.s.query(Measurement).filter(Measurement.id.in_(new_ids)).\
+                    join(association_table).\
+                    group_by(Measurement.id).\
                     having(func.count(distinct(association_table.c.tag_id)) == len(tags)).\
                     all()
-            '''
         else:
             relation_subq = self.s.query(association_table.c.meas_id).\
                     join(Tag).filter(Tag.tag.in_(tags)).\
@@ -86,6 +92,43 @@ class Datamanager():
             data_objects.append(Data(meas))
         return data_objects
 
+    """
+    Delete all uniquely matching measurements, tags are not removed but may not be associated with
+    any measurements
+    """
+    def delete(self, tags):
+        if not tags:
+            print 'No tags given'
+            return False
+        #Uses the usual query to find the ids of matches
+        relation_subq = self.s.query(association_table.c.meas_id).\
+                join(Tag).filter(Tag.tag.in_(tags)).\
+                group_by(association_table.c.meas_id).\
+                having(func.count(distinct(association_table.c.tag_id)) >= len(tags)).\
+                subquery()
+
+        ids = self.s.query(Measurement.id).join(relation_subq).all()
+        #ids is a list of 1-element tuples, fixing it below
+        for i, id in enumerate(ids):
+            ids[i] = ids[i][0]
+
+        #Sort out the non/unique matches
+        ids = self.s.query(Measurement.id).filter(Measurement.id.in_(ids)).\
+                join(association_table).\
+                group_by(Measurement.id).\
+                having(func.count(distinct(association_table.c.tag_id)) == len(tags)).\
+                all()
+        for i, id in enumerate(ids):
+            ids[i] = ids[i][0]
+
+        if len(ids) == 0:
+            print 'No matches to delete'
+            return
+        self.s.execute(Measurement.__table__.delete().where(Measurement.id.in_(ids)))
+        self.s.execute(association_table.delete().where(association_table.c.meas_id.in_(ids)))
+        self.s.commit()
+        print 'Deleted %d elements' %(len(ids))
+
     """Returns a list of all used tags"""
     def list_tags(self):
         tags = []
@@ -96,16 +139,17 @@ class Datamanager():
 
     """Returns all used combinations of tags, and the number of measurements associated"""
     def list_combinations(self):
-        counts = []
         combinations = []
         relations = self.s.query(association_table.c.meas_id, Tag.tag).join(Tag).all()
         index = relations[0][0]
         tags = []
-        for i, row in enumerate(relations):
+        for row in relations:
+            #Keeps adding tags when meas_id is the same
             if row[0] == index:
                 tags.append(row[1])
             else:
                 new = True
+                #Checks to see if tag combination already is in combinations and adds 1 to counter
                 for comb in combinations:
                     if Counter(comb[0]) == Counter(tags):
                         comb[1] += 1
@@ -114,14 +158,15 @@ class Datamanager():
                 if new:
                     combinations.append([tags, 1])
 
+                #Starts the next entry
                 index = row[0]
                 tags = [row[1]]
-
+        #Must add the last count manually
+        if Counter(comb[0]) == Counter(tags):
+            comb[1] += 1
+        print '\nNumber of points\tTags'
         for c in combinations:
-            print c
-
-
-
+            print str(c[1]) + '\t\t\t' + str(c[0])
 
     """
     Returns the number of lines in the database matching these tags.
@@ -154,8 +199,10 @@ class Data():
 
 if __name__ == '__main__':
     dm = Datamanager(echo=True)
+    dm.list_combinations()
+    #print dm.read(['sgt50'], unique=True)
     #dm.insert(tags=['sgt', 'training', 'test'], observable=100, energy=50)
     #dm.insert(tags=['sgt', 'training'], observable=20, energy=40)
     #dm.insert(tags=['sgt', 'training'], observable=10, energy=5)
     #dm.insert(tags=['sgt', 'validation'], observable=90, energy=55)
-    dm.list_combinations()
+    #dm.list_combinations()
