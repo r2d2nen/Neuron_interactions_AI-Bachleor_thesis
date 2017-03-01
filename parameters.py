@@ -135,7 +135,7 @@ class Parameters():
 
         lec_samples += lec_min
 
-        lec_samples = replace_superflous_lecs(lec_samples)
+        lec_samples = self.replace_superflous_lecs(lec_samples)
         
         return lec_samples
         
