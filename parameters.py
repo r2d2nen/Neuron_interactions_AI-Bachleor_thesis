@@ -78,7 +78,7 @@ class Parameters():
             ]
 
         # Set up dimensions of sample size and lecs.
-        self.interval = interval_width/2 # Split total interval into two sides.
+        self.interval = interval_width/2. # Split total interval into two sides.
         self.nbr_of_samples = nbr_of_samples
         self.nbr_of_lecs = len(self.lecs_dict.keys())
         self.nbr_of_points_1d = nbr_of_points_1d
@@ -100,7 +100,6 @@ class Parameters():
         # use center of the intervals as center_lecs if specified
         elif center_lecs == "center_of_interval":
             self.center_lecs = self.center_of_lecs_interval()
-            
         else:
             self.center_lecs = np.reshape(center_lecs, (1, len(center_lecs)))
         
