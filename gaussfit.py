@@ -3,9 +3,10 @@ from GPy.kern import RBF
 from GPy.models import GPRegression
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
+from math import sqrt
 
 #Default values for the GP
-DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 0.1}
+DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
 
 class Gaussfit:
     """Handles GPR of input data. """
@@ -88,11 +89,11 @@ class Gaussfit:
 
     def plot_predicted_actual(self, Xvalid, Yvalid):
         (Ymodel, Variance) = self.model.predict(Xvalid)
-        print Variance
-        print self.model
+        stdev = np.sqrt(Variance)
         plt.figure(1)
         plt.plot(Yvalid, Ymodel, '.')
-        plt.errorbar(Yvalid, Ymodel, yerr=Variance)
+        plt.errorbar(Yvalid, Ymodel, yerr=stdev, fmt=None)
+        plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
         plt.xlabel('Simulated value')
         plt.ylabel('Predicted value')
         plt.show()

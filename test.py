@@ -63,6 +63,7 @@ if process_data:
 
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(in_dim=LEC_LENGTH)
+    train_lecs = gauss.rescale(train_lecs)
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
@@ -80,6 +81,7 @@ if process_data:
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
         val_lecs = np.delete(val_lecs, 0, 0)
+        val_lecs = gauss.rescale(val_lecs)
         gauss.plot_predicted_actual(val_lecs, val_obs)
         gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
         print('Number of validation data: ' + str(sample))
