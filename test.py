@@ -5,17 +5,17 @@ from datamanager import Datamanager
 import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 samples = 1000
-generate_tags = ['sgt50', 'training' + str(samples), 'D_500_290_100%']
+generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%']
 training_tags = ['sgt50', 'training1000', 'D_500_290_100%']
 validation_tags = ['sgt50', 'validation1000', 'D_500_290_100%']
 LEC_LENGTH = 16
 energy = 50
 
 # Set up necessary classes)
-param = Parameters(1, samples)
+param = Parameters(1, samples, center_lecs='center_of_interval')
 nsopt = NsoptCaller()
 gauss = Gaussfit()
 dm = Datamanager(echo=False)

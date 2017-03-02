@@ -100,7 +100,6 @@ class Parameters():
         # use center of the intervals as center_lecs if specified
         elif center_lecs == "center_of_interval":
             self.center_lecs = self.center_of_lecs_interval()
-            
         else:
             self.center_lecs = np.reshape(center_lecs, (1, len(center_lecs)))
         
