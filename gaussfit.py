@@ -14,6 +14,8 @@ class Gaussfit:
         """Initialize a gaussfit object."""
         self.kernel = None
         self.model = None
+        self.translation = None
+        self.scale = None
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
         """Sets the kernel of this Gaussfit"""
@@ -23,7 +25,14 @@ class Gaussfit:
         else:
             print 'Kernel not recognized'
     
-
+    def set_translation(self, translation):
+        self.translation = translation
+    
+    def set_scale(self, scale):
+        self.scale = scale
+        
+        
+        
     def populate_gp_model(self, observable, lecs, energy=None):
         """Creates a model based on given data and kernel.
         
@@ -40,8 +49,6 @@ class Gaussfit:
         observable.transpose()
         self.model = GPRegression(lecs, observable,self.kernel)
 
-        
-
     def optimize(self, num_restarts=1):
         """Optimize the model."""
         
@@ -52,19 +59,18 @@ class Gaussfit:
         """Rescales the input parameters that Gpy handles,
            so that they are in the interval [-1,1] #Remove 16xnr 
         """
-       
+        if self.scale = None or self.translate = None:
+            print("ERROR: 'rescale' requires scale and translateion. One or both are 'None'.")
+            return inMatrix
+            
         def rescale(colum):
             """Rescales the input parameters that Gpy handles,
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
-            
-            #Dividing by float
-            translation = -(colum.max()+colum.min())/2.0
-            new_array = colum + translation  #translation all the values
-            scale = float(new_array.max())
-            if scale == 0: # All values are 0 
+            new_array = colum + self.translation  #translation all the values
+            if self.scale == 0: # All values are 0 
                 return new_array
-            new_array =  new_array/scale #scale all the values
+            new_array =  new_array/self.scale #scale all the values
         
             return new_array
             
