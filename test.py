@@ -5,12 +5,12 @@ from datamanager import Datamanager
 import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = True
-process_data = False
+generate_data = False
+process_data = True
 samples = 1000
 generate_tags = ['sgt50', 'training' + str(samples), 'D_500_290_100%']
-training_tags = ['sgt50', 'training1100', 'D_500_290_10%']
-validation_tags = ['sgt50', 'validation', 'D_500_290_10%']
+training_tags = ['sgt50', 'training1000', 'D_500_290_100%']
+validation_tags = ['sgt50', 'validation1000', 'D_500_290_100%']
 LEC_LENGTH = 16
 energy = 50
 
@@ -66,11 +66,11 @@ if process_data:
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
-    for sample in xrange(100, 1400, 100):
+    for sample in xrange(100, 200, 100):
         val_obs = np.array([0])
         val_energy = np.array([0])
         val_lecs = np.array(np.zeros(LEC_LENGTH))
-        validation_tags[1] = 'validation' + str(sample)
+        #validation_tags[1] = 'validation' + str(sample)
         for row in dm.read(validation_tags):
             val_obs = np.vstack((val_obs, row.observable))
             val_energy = np.vstack((val_energy, row.energy))
@@ -80,7 +80,8 @@ if process_data:
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
         val_lecs = np.delete(val_lecs, 0, 0)
-
+        gauss.plot_predicted_actual(val_lecs, val_obs)
+        gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
         print('Number of validation data: ' + str(sample))
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 

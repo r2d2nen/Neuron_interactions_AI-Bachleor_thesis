@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
 
 #Default values for the GP
-DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
+DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 0.1}
 
 class Gaussfit:
     """Handles GPR of input data. """
@@ -47,7 +47,7 @@ class Gaussfit:
         #Something worng, model doesn't always converge
         self.model.optimize_restarts(num_restarts=num_restarts, messages=True)
         
-    def rescale(inMatrix):
+    def rescale(self, inMatrix):
         """Rescales the input parameters that Gpy handles,
            so that they are in the interval [-1,1] #Remove 16xnr 
         """
@@ -56,18 +56,19 @@ class Gaussfit:
             """Rescales the input parameters that Gpy handles,
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
-        
-            translation = -(colum.max()+colum.min())/2
+            
+            #Dividing by float
+            translation = -(colum.max()+colum.min())/2.0
             new_array = colum + translation  #translation all the values
-            scale = new_array.max()
+            scale = float(new_array.max())
             if scale == 0: # All values are 0 
                 return new_array
             new_array =  new_array/scale #scale all the values
         
             return new_array
             
-        return np.apply_along_axis( rescale, axis=0, arr=inMatrix) 
-    
+        return np.apply_along_axis(rescale, axis=0, arr=inMatrix) 
+
     def plot(self):
         """Plot the GP-model"""
         """Plot limits only for 1D-case"""
@@ -84,6 +85,18 @@ class Gaussfit:
         #Sum of a numpy array returns another array, we use the first (and only) element
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
+
+    def plot_predicted_actual(self, Xvalid, Yvalid):
+        (Ymodel, Variance) = self.model.predict(Xvalid)
+        print Variance
+        print self.model
+        plt.figure(1)
+        plt.plot(Yvalid, Ymodel, '.')
+        plt.errorbar(Yvalid, Ymodel, yerr=Variance)
+        plt.xlabel('Simulated value')
+        plt.ylabel('Predicted value')
+        plt.show()
+        
 
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
         """ Creates a plot showing the vallidated error """
