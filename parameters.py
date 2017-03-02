@@ -78,7 +78,7 @@ class Parameters():
             ]
 
         # Set up dimensions of sample size and lecs.
-        self.interval = interval_width/2 # Split total interval into two sides.
+        self.interval = interval_width/2. # Split total interval into two sides.
         self.nbr_of_samples = nbr_of_samples
         self.nbr_of_lecs = len(self.lecs_dict.keys())
         self.nbr_of_points_1d = nbr_of_points_1d
