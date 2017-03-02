@@ -87,17 +87,36 @@ class Gaussfit:
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
 
+    """
+    Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars
+    """
     def plot_predicted_actual(self, Xvalid, Yvalid):
         (Ymodel, Variance) = self.model.predict(Xvalid)
-        stdev = np.sqrt(Variance)
+        sigma = np.sqrt(Variance)
         plt.figure(1)
         plt.plot(Yvalid, Ymodel, '.')
-        plt.errorbar(Yvalid, Ymodel, yerr=stdev, fmt=None)
+        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt=None)
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
         plt.xlabel('Simulated value')
         plt.ylabel('Predicted value')
         plt.show()
         
+    """
+    Returns the fraction of errors within 1, 2, and 3 sigma 
+    """
+    def get_sigma_intervals(self, Xvalid, Yvalid):
+        (Ymodel, Variance) = self.model.predict(Xvalid)
+        sigma = np.sqrt(Variance)
+        n = np.array([0, 0, 0])
+        errors = abs(Yvalid - Ymodel)
+        for i, e in enumerate(errors):
+            if e <= sigma[i]:
+                n[0] = n[0] + 1
+            if e <= 2 * sigma[i]:
+                n[1] = n[1] + 1
+            if e <= 3 * sigma[i]:
+                n[2] = n[1] + 1
+        return n/float(np.shape(errors)[0])
 
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
         """ Creates a plot showing the vallidated error """
