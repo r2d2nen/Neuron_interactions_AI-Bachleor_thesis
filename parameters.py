@@ -6,19 +6,18 @@ class Parameters():
 
 
     # PARAMETER OVERHAUL
-    # DEFINE INTERVAL (probably do interval/2 on each side
     # Bring back functionality for center_lecs as center of interval
     # Can we move outside of physical boundarys for lecs?
     # 
     #
     #
     
-    def __init__(self, interval, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3):
+    def __init__(self, interval_width, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3):
         """Set up parameter volume from supplied intervals.
         
         Args:
         Center_lecs - numpy array with center points which we would like to sample lecs around
-        Interval - interval around the center point in parts (0 to 1 where 0.10 means 10 percent)
+        Interval_width - total interval width around the center point in parts (0 to 1 where 0.10 means 10 percent)
         nbr_of_samples - number of data points we want to generate in the volume.
         nbr_of_points_1d - number of sample points to be generated for each lec dimension
         (used by create_monospaced_lecs)
@@ -79,7 +78,7 @@ class Parameters():
             ]
 
         # Set up dimensions of sample size and lecs.
-        self.interval = interval
+        self.interval = interval_width/2 # Split total interval into two sides.
         self.nbr_of_samples = nbr_of_samples
         self.nbr_of_lecs = len(self.lecs_dict.keys())
         self.nbr_of_points_1d = nbr_of_points_1d
