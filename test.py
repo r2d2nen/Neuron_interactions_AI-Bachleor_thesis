@@ -8,8 +8,8 @@ import numpy as np
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = True
-process_data = False
+generate_data = False
+process_data = True
 samples = 1000
 generate_tags = ['sgt50', 'validation' + str(samples), 'D_center_100%_random_uniform_lecs']
 training_tags = ['sgt50', 'training1000', 'D_center_100%']

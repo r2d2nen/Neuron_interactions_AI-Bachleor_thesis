@@ -107,9 +107,9 @@ class Parameters():
         
 
         # Array with the interval length in which each lec can vary with the current interval settings
-        self.volume_length = np.zeros(self.nbr_of_lecs)
+        self.half_volume_length = np.zeros(self.nbr_of_lecs)
         for index, name in enumerate(self.lecs_name):
-            self.volume_length[index] = self.lecs_dict[name][3]*self.interval
+            self.half_volume_length[index] = self.lecs_dict[name][3]*self.interval
             
     def create_monospaced_lecs(self):
         """Returns monospaced grid of LECs"""
@@ -117,8 +117,8 @@ class Parameters():
         range_list = []
 
         for idx in np.arange(len(self.center_lecs)):
-            range_list.append((self.center_lecs[idx]-self.volume_length[idx],
-                               self.center_lecs[idx]+self.volume_length[idx],
+            range_list.append((self.center_lecs[idx]-self.half_volume_length[idx],
+                               self.center_lecs[idx]+self.half_volume_length[idx],
                                self.nbr_of_points_1d*1j))
                             
         lecs_grid = np.mgrid[[slice(i,j,k) for i,j,k in range_list]].reshape(len(range_list),-1).T
@@ -131,8 +131,8 @@ class Parameters():
     def create_lhs_lecs(self):
         """Returns matrix of LECS sampled using latin hypercube sampling"""
         lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
-        lec_min = self.center_lecs - self.volume_length
-        lec_samples = 2*np.multiply(self.volume_length, lec_samples)
+        lec_min = self.center_lecs - self.half_volume_length
+        lec_samples = 2*np.multiply(self.half_volume_length, lec_samples)
 
         lec_samples += lec_min
 
@@ -144,8 +144,8 @@ class Parameters():
         """Creates matrix of random lec samples within the
         specified interval"""
         
-        minvec = self.center_lecs - self.volume_length
-        maxvec = self.center_lecs + self.volume_length
+        minvec = self.center_lecs - self.half_volume_length
+        maxvec = self.center_lecs + self.half_volume_length
     
         lec_samples = np.random.uniform(minvec, maxvec, (self.nbr_of_samples, self.nbr_of_lecs))
 
@@ -160,8 +160,8 @@ class Parameters():
         """
         lec_samples = np.tile(self.center_lecs,[self.nbr_of_samples,1])
 
-        minval = self.center_lecs[lecindex]-self.volume_length[lecindex]
-        maxval = self.center_lecs[lecindex]+self.volume_length[lecindex]
+        minval = self.center_lecs[lecindex]-self.half_volume_length[lecindex]
+        maxval = self.center_lecs[lecindex]+self.half_volume_length[lecindex]
         onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
 
         lec_samples[:,lecindex] = onedof_lec
