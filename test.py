@@ -10,7 +10,7 @@ import numpy as np
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = False
 process_data = True
-rescale_data = False
+rescale_data = True
 
 
 # Generation parameters
@@ -49,7 +49,8 @@ elif generate_data and dm.num_matches(generate_tags) > 0:
     answer = raw_input('Matching data for your tags already exist, add new data as well? (y for yes): ')
     if answer == 'y':
         continue_generate = True
-
+else:
+    continue_generate = False
 
 if continue_generate:
     param.nbr_of_samples = samples
