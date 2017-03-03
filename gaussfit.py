@@ -64,7 +64,7 @@ class Gaussfit:
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
             
-            if scale is None: #allows only for on value of scale for each gauss object
+            if self.scale is None: #allows only for on value of scale for each gauss object
                 self.scale = max(abs(colum))
             if self.scale == 0: # All values are 0 
                 return colum

@@ -9,7 +9,7 @@ import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = True
-process_data = False
+process_data = True
 rescale_data = False
 
 # Generation parameters
@@ -110,14 +110,14 @@ if process_data:
             val_obs = np.vstack((val_obs, row.observable))
             val_energy = np.vstack((val_energy, row.energy))
             val_lecs = np.vstack((val_lecs, row.LECs))
-        
-        if rescale_data:
-            val_lecs = gauss.scale(val_lecs)
                 
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
         val_lecs = np.delete(val_lecs, 0,0)
-        val_lecs = gauss.rescale(val_lecs)
+
+        if rescale_data:
+            val_lecs = gauss.rescale(val_lecs)
+            
         gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
         gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
