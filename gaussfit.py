@@ -63,8 +63,9 @@ class Gaussfit:
             """Rescales the input parameters that Gpy handles,
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
-            #colum = colum + translation  #translation all the values
-            self.scale = max(abs(colum))
+            
+            if scale is None: #allows only for on value of scale for each gauss object
+                self.scale = max(abs(colum))
             if self.scale == 0: # All values are 0 
                 return colum
             new_array =  colum/self.scale #scale all the values

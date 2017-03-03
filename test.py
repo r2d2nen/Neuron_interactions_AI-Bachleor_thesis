@@ -10,6 +10,7 @@ import numpy as np
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = True
 process_data = False
+rescale_data = False
 samples = 10000
 generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%_gaussian_lecs']
 training_tags = ['sgt50', 'training1000', 'D_center_100%']
@@ -63,6 +64,9 @@ if process_data:
         train_energy = np.vstack((train_energy, row.energy))
         train_lecs = np.vstack((train_lecs, row.LECs))
 
+    if rescale_data:
+        train_lecs = gauss.scale(train_lecs)
+     
     # Clean up initialized zeros
     train_obs = np.delete(train_obs, 0, 0)
     train_energy = np.delete(train_energy, 0, 0)
@@ -83,7 +87,9 @@ if process_data:
             val_obs = np.vstack((val_obs, row.observable))
             val_energy = np.vstack((val_energy, row.energy))
             val_lecs = np.vstack((val_lecs, row.LECs))
-
+        
+        if rescale_data:
+            val_lecs = gauss.scale(val_lecs)
                 
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
