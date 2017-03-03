@@ -5,12 +5,12 @@ from datamanager import Datamanager
 import numpy as np
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = True
-process_data = False
+generate_data = False
+process_data = True
 samples = 1000
-generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%']
-training_tags = ['sgt50', 'training1000', 'D_500_290_100%']
-validation_tags = ['sgt50', 'validation1000', 'D_500_290_100%']
+generate_tags = ['sgt50', 'validation' + str(samples), 'D_center_100%']
+training_tags = ['sgt50', 'training1000', 'D_center_100%']
+validation_tags = ['sgt50', 'training1000', 'D_center_100%']
 LEC_LENGTH = 16
 energy = 50
 
@@ -82,9 +82,9 @@ if process_data:
         val_energy = np.delete(val_energy, 0, 0)
         val_lecs = np.delete(val_lecs, 0, 0)
         #val_lecs = gauss.rescale(val_lecs)
-        #gauss.plot_predicted_actual(val_lecs, val_obs)
+        gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
-        #gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
-        print('Number of validation data: ' + str(sample))
+        gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+        #print('Number of validation data: ' + str(sample))
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 
