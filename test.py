@@ -11,16 +11,27 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
-samples = 10000
-generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%_gaussian_lecs']
-training_tags = ['D_center_100%_lhs_lecs', 'training1000']
-validation_tags = ['sgt50', 'validation1000', 'D_center_100%_random_uniform']
-lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform'
+
+
+# Generation parameters
+samples = 1000
+lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
+interval = 1 # 0 to 1, percentage of total interval
+generate_tags = ['sgt50', 'validation' + str(samples),
+                 'D_center_' + str(interval*100) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
+lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
+
 LEC_LENGTH = 16
 energy = 50
 
+# Which tags to read from database i we process data?
+training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%_gaussian_lecs']
+
+
 # Set up necessary classes)
-param = Parameters(1, samples, center_lecs='center_of_interval')
+param = Parameters(1, samples, center_lecs=lec_center)
 nsopt = NsoptCaller()
 gauss = Gaussfit()
 dm = Datamanager(echo=False)
@@ -33,6 +44,14 @@ dm = Datamanager(echo=False)
     
 
 if generate_data and dm.num_matches(generate_tags) <= 0:
+    continue_generate = True
+elif generate_data and dm.num_matches(generate_tags) > 0:
+    answer = raw_input('Matching data for your tags already exist, add new data as well? (y for yes): ')
+    if answer == 'y':
+        continue_generate = True
+
+
+if continue_generate:
     param.nbr_of_samples = samples
     if lec_lhs == 'lhs':
         print('lhs')
@@ -43,9 +62,14 @@ if generate_data and dm.num_matches(generate_tags) <= 0:
     elif lec_lhs == 'random_uniform':
         print('random_uniform')
         lecs = param.create_random_uniform_lecs()
-    observables = nsopt.get_nsopt_observable(lecs)
-    for i in xrange(samples):
-        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
+    elif lec_lhs == '1dof':
+        print('1dof lec index: ' + str(lec_index))
+        lecs = param.create_lecs_1dof()
+    print(generate_tags)
+   # observables = nsopt.get_nsopt_observable(lecs)
+    
+    #for i in xrange(samples):
+    #    dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
     
     #for row in dm.read(['test']):
         #print row.observable
