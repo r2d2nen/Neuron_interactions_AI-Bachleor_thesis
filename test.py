@@ -8,13 +8,13 @@ import numpy as np
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 samples = 1000
-generate_tags = ['sgt50', 'validation' + str(samples), 'D_center_100%_random_uniform_lecs']
+generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%_gaussian_lecs']
 training_tags = ['sgt50', 'training1000', 'D_center_100%']
-validation_tags = ['sgt50', 'validation1000', 'D_center_100%']
-lec_lhs = False   # Set True for random uniform lecs
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%_random_uniform_lecs']
+lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform'
 LEC_LENGTH = 16
 energy = 50
 
@@ -32,11 +32,15 @@ dm = Datamanager(echo=False)
     
 
 if generate_data and dm.num_matches(generate_tags) <= 0:
-    print('hej')
     param.nbr_of_samples = samples
-    if lec_lhs:
+    if lec_lhs == 'lhs':
+        print('lhs')
         lecs = param.create_lhs_lecs()
-    else:
+    elif lec_lhs == 'gaussian':
+        print('gaussian')
+        lecs = param.create_gaussian_lecs()
+    elif lec_lhs == 'random_uniform':
+        print('random_uniform')
         lecs = param.create_random_uniform_lecs()
     
     print('THIS IS SHIT: %r %r %r') % (samples, generate_tags, lecs)

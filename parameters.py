@@ -130,9 +130,9 @@ class Parameters():
 
     """Create a set of lecs with a normal distribution in every dimension. Default is sigma=1/3 of interval"""
     def create_gaussian_lecs(self):
-        lec_samples = np.random.normal(loc=0, scale=1/3,
+        lec_samples = np.random.normal(loc=0, scale=1/3.,
                 size=(self.nbr_of_samples, self.nbr_of_lecs))
-        lec_samples = 2*np.multiply(self.half_volume_length, lec_samples)
+        lec_samples = np.multiply(self.half_volume_length, lec_samples)
         lec_samples += self.center_lecs
 
         return lec_samples
