@@ -14,7 +14,7 @@ rescale_data = False
 
 # Generation parameters
 samples = 1000
-lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+lec_lhs = 'gaussian'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
@@ -89,13 +89,14 @@ if process_data:
         train_energy = np.vstack((train_energy, row.energy))
         train_lecs = np.vstack((train_lecs, row.LECs))
 
-    if rescale_data:
-        train_lecs = gauss.scale(train_lecs)
      
     # Clean up initialized zeros
     train_obs = np.delete(train_obs, 0, 0)
     train_energy = np.delete(train_energy, 0, 0)
     train_lecs = np.delete(train_lecs, 0, 0)
+
+    if rescale_data:
+        train_lecs = gauss.rescale(train_lecs)
 
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(in_dim=LEC_LENGTH)
