@@ -23,10 +23,6 @@ class Gaussfit:
             self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
         else:
             print 'Kernel not recognized'
-    
-    def set_scale(self, scale):
-        self.scale = scale
-        
         
         
     def populate_gp_model(self, observable, lecs, energy=None):
@@ -55,16 +51,13 @@ class Gaussfit:
         """Rescales the input parameters that Gpy handles,
            so that they are in the interval [-1,1] #Remove 16xnr 
         """
-        #if self.scale is None or self.translate is None:
-        #    print("ERROR: 'rescale' requires scale and translateion. One or both are 'None'.")
-        #    return inMatrix
             
         def rescale(colum):
             """Rescales the input parameters that Gpy handles,
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
             
-            if scale is None: #allows only for on value of scale for each gauss object
+            if self.scale is None: #allows only for on value of scale for each gauss object
                 self.scale = max(abs(colum))
             if self.scale == 0: # All values are 0 
                 return colum
