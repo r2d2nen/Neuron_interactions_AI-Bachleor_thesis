@@ -12,7 +12,6 @@ generate_data = False
 process_data = True
 rescale_data = True
 
-
 # Generation parameters
 samples = 1000
 lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
@@ -89,7 +88,8 @@ if process_data:
         train_energy = np.vstack((train_energy, row.energy))
         train_lecs = np.vstack((train_lecs, row.LECs))
 
-    
+    if rescale_data:
+        train_lecs = gauss.scale(train_lecs)
      
     # Clean up initialized zeros
     train_obs = np.delete(train_obs, 0, 0)
@@ -98,8 +98,7 @@ if process_data:
 
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(in_dim=LEC_LENGTH)
-    if rescale_data:
-        train_lecs = gauss.rescale(train_lecs)
+    #train_lecs = gauss.rescale(train_lecs)
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
@@ -112,13 +111,14 @@ if process_data:
             val_obs = np.vstack((val_obs, row.observable))
             val_energy = np.vstack((val_energy, row.energy))
             val_lecs = np.vstack((val_lecs, row.LECs))
-        
                 
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
         val_lecs = np.delete(val_lecs, 0,0)
+
         if rescale_data:
-           val_lecs = gauss.rescale(val_lecs)
+            val_lecs = gauss.rescale(val_lecs)
+            
         gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
         gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
