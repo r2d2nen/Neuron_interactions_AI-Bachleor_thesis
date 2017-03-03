@@ -109,7 +109,7 @@ class Parameters():
         # Array with the interval length in which each lec can vary with the current interval settings
         self.half_volume_length = np.zeros(self.nbr_of_lecs)
         for index, name in enumerate(self.lecs_name):
-            self.half_volume_length[index] = self.lecs_dict[name][3]*self.interval
+            self.half_volume_length[index] = self.lecs_dict[name][2]*self.interval
             
     def create_monospaced_lecs(self):
         """Returns monospaced grid of LECs"""

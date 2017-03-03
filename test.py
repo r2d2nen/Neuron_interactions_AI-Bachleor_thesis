@@ -10,11 +10,11 @@ import numpy as np
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = True
 process_data = False
-samples = 1000
+samples = 10
 generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%_gaussian_lecs']
 training_tags = ['sgt50', 'training1000', 'D_center_100%']
 validation_tags = ['sgt50', 'validation1000', 'D_center_100%_random_uniform_lecs']
-lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform'
+lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform'
 LEC_LENGTH = 16
 energy = 50
 
@@ -42,13 +42,11 @@ if generate_data and dm.num_matches(generate_tags) <= 0:
     elif lec_lhs == 'random_uniform':
         print('random_uniform')
         lecs = param.create_random_uniform_lecs()
-    
-    print('THIS IS SHIT: %r %r %r') % (samples, generate_tags, lecs)
-    print('Getting observables')
     observables = nsopt.get_nsopt_observable(lecs)
-    print('Inserting data')
-    for i in xrange(samples):
-        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
+    print(lecs)
+    print(observables)
+    #for i in xrange(samples):
+    #    dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
     
     #for row in dm.read(['test']):
         #print row.observable
