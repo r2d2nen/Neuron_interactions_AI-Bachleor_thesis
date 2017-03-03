@@ -49,7 +49,8 @@ elif generate_data and dm.num_matches(generate_tags) > 0:
     answer = raw_input('Matching data for your tags already exist, add new data as well? (y for yes): ')
     if answer == 'y':
         continue_generate = True
-
+else:
+    continue_generate = False
 
 if continue_generate:
     param.nbr_of_samples = samples
