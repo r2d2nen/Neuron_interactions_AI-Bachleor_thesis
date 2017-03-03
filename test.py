@@ -4,13 +4,17 @@ from gaussfit import Gaussfit
 from datamanager import Datamanager
 import numpy as np
 
+
+#### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
+
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = True
 process_data = False
 samples = 1000
-generate_tags = ['sgt50', 'training' + str(samples), 'D_center_100%']
-training_tags = ['sgt50', 'training1000', 'D_500_290_100%']
-validation_tags = ['sgt50', 'validation1000', 'D_500_290_100%']
+generate_tags = ['sgt50', 'validation' + str(samples), 'D_center_100%_random_uniform_lecs']
+training_tags = ['sgt50', 'training1000', 'D_center_100%']
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%']
+lec_lhs = False   # Set True for random uniform lecs
 LEC_LENGTH = 16
 energy = 50
 
@@ -30,8 +34,11 @@ dm = Datamanager(echo=False)
 if generate_data and dm.num_matches(generate_tags) <= 0:
     print('hej')
     param.nbr_of_samples = samples
+    if lec_lhs:
+        lecs = param.create_lhs_lecs()
+    else:
+        lecs = param.create_random_uniform_lecs()
     
-    lecs = param.create_lhs_lecs()
     print('THIS IS SHIT: %r %r %r') % (samples, generate_tags, lecs)
     print('Getting observables')
     observables = nsopt.get_nsopt_observable(lecs)
@@ -80,11 +87,11 @@ if process_data:
                 
         val_obs = np.delete(val_obs, 0, 0)
         val_energy = np.delete(val_energy, 0, 0)
-        val_lecs = np.delete(val_lecs, 0, 0)
-        #val_lecs = gauss.rescale(val_lecs)
-        #gauss.plot_predicted_actual(val_lecs, val_obs)
+        val_lecs = np.delete(val_lecs, 0,0)
+        val_lecs = gauss.rescale(val_lecs)
+        gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
-        #gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+        gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
         print('Number of validation data: ' + str(sample))
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 

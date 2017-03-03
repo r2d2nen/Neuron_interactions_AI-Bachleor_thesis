@@ -149,7 +149,7 @@ class Parameters():
     
         lec_samples = np.random.uniform(minvec, maxvec, (self.nbr_of_samples, self.nbr_of_lecs))
 
-        lec_samples = replace_superflous_lecs(lec_samples)
+        lec_samples = self.replace_superflous_lecs(lec_samples)
         
         return lec_samples
 

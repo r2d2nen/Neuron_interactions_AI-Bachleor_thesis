@@ -59,7 +59,7 @@ class Gaussfit:
         """Rescales the input parameters that Gpy handles,
            so that they are in the interval [-1,1] #Remove 16xnr 
         """
-        if self.scale = None or self.translate = None:
+        if self.scale is None or self.translate is None:
             print("ERROR: 'rescale' requires scale and translateion. One or both are 'None'.")
             return inMatrix
             
