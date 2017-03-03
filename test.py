@@ -8,8 +8,8 @@ import numpy as np
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 rescale_data = False
 
 # Generation parameters
@@ -17,12 +17,13 @@ samples = 1000
 lec_lhs = 'random_uniform'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1 # 0 to 1, percentage of total interval
-generate_tags = ['sgt50', 'validation' + str(samples),
-                 'D_center_' + str(interval*100) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
-
-LEC_LENGTH = 16
 energy = 50
+LEC_LENGTH = 16
+
+generate_tags = ['sgt' + str(energy), 'training' + str(samples),
+                 'D_center_' + str(interval*100) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
+
 
 # Which tags to read from database i we process data?
 training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
@@ -65,10 +66,10 @@ if continue_generate:
         print('1dof lec index: ' + str(lec_index))
         lecs = param.create_lecs_1dof()
     print(generate_tags)
-   # observables = nsopt.get_nsopt_observable(lecs)
+    observables = nsopt.get_nsopt_observable(lecs)
     
-    #for i in xrange(samples):
-    #    dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
+    for i in xrange(samples):
+        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
     
     #for row in dm.read(['test']):
         #print row.observable
