@@ -114,7 +114,6 @@ if process_data:
 
         if rescale_data:
             (val_lecs, val_obs) = gauss.rescale(val_lecs, val_obs)
-            # val_obs = gauss.rescale(val_obs)
             
         gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
