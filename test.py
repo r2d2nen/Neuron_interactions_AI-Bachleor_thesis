@@ -10,7 +10,7 @@ import numpy as np
 #Do we want to generate new samples? And if so, how many? SET TAGS 
 generate_data = False
 process_data = True
-rescale_data = False
+rescale_data = True
 
 # Generation parameters. Set these to generate different data
 samples = 1000
@@ -28,7 +28,7 @@ generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
 
 # Which tags to read from database i we process data? Set these manually
 training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
-validation_tags = ['sgt50', 'validation1000', 'D_center_100%_gaussian_lecs']
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%_lhs_lecs']
 
 
 
@@ -91,7 +91,7 @@ if process_data:
     train_lecs = np.delete(train_lecs, 0, 0)
 
     if rescale_data:
-        train_lecs = gauss.rescale(train_lecs)
+        (train_lecs, train_obs) = gauss.rescale(train_lecs, train_obs)
 
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(in_dim=LEC_LENGTH)
@@ -113,7 +113,8 @@ if process_data:
         val_lecs = np.delete(val_lecs, 0,0)
 
         if rescale_data:
-            val_lecs = gauss.rescale(val_lecs)
+            (val_lecs, val_obs) = gauss.rescale(val_lecs, val_obs)
+            # val_obs = gauss.rescale(val_obs)
             
         gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
