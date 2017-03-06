@@ -1,3 +1,4 @@
+import sys
 from parameters import Parameters
 from nsoptcaller import NsoptCaller
 from gaussfit import Gaussfit
@@ -71,8 +72,11 @@ if continue_generate:
     
     for i in xrange(samples):
         dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
-     
+
 if process_data:
+    if dm.num_matches(training_tags) <= 0 or dm.num_matches(validation_tags) <= 0:
+        sys.exit('Check your tags. No matched found in database.')
+    
     #Set empty arrays with zeros for training and validation data
     train_obs = np.array([0])
     train_energy = np.array([0])
