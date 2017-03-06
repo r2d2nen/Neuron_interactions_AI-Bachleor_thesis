@@ -14,22 +14,22 @@ process_data = True
 rescale_data = False
 
 # Generation parameters. Set these to generate different data
-samples = 1000
-lec_lhs = 'gaussian'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+samples = 2000
+lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
-interval = 1 # 0 to 1, percentage of total interval
+interval = 0.5 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
 energy = 50
 LEC_LENGTH = 16
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
-generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
+generate_tags = ['sgt' + str(energy), 'training' + str(samples),
                  'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
 
 
 # Which tags to read from database i we process data? Set these manually
-training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
-validation_tags = ['sgt50', 'validation1001', 'D_center_100%_gaussian_lecs']
+training_tags = ['sgt50', 'training2000', 'D_center_50%_lhs_lecs']
+validation_tags = ['sgt50', 'validation250', 'D_center_50%_lhs_lecs']
 
 
 
@@ -102,25 +102,23 @@ if process_data:
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
-    for sample in xrange(100, 200, 100):
-        val_obs = np.array([0])
-        val_energy = np.array([0])
-        val_lecs = np.array(np.zeros(LEC_LENGTH))
-        #validation_tags[1] = 'validation' + str(sample)
-        for row in dm.read(validation_tags):
-            val_obs = np.vstack((val_obs, row.observable))
-            val_energy = np.vstack((val_energy, row.energy))
-            val_lecs = np.vstack((val_lecs, row.LECs))
-                
-        val_obs = np.delete(val_obs, 0, 0)
-        val_energy = np.delete(val_energy, 0, 0)
-        val_lecs = np.delete(val_lecs, 0,0)
-
-        if rescale_data:
-            val_lecs = gauss.rescale(val_lecs)
-            
-        gauss.plot_predicted_actual(val_lecs, val_obs)
-        print gauss.get_sigma_intervals(val_lecs, val_obs)
-        gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
-        print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
+    val_obs = np.array([0])
+    val_energy = np.array([0])
+    val_lecs = np.array(np.zeros(LEC_LENGTH))
+    #validation_tags[1] = 'validation' + str(sample)
+    for row in dm.read(validation_tags):
+        val_obs = np.vstack((val_obs, row.observable))
+        val_energy = np.vstack((val_energy, row.energy))
+        val_lecs = np.vstack((val_lecs, row.LECs))
+             
+    val_obs = np.delete(val_obs, 0, 0)
+    val_energy = np.delete(val_energy, 0, 0)
+    val_lecs = np.delete(val_lecs, 0,0)
+    if rescale_data:
+        val_lecs = gauss.rescale(val_lecs)
+         
+    gauss.plot_predicted_actual(val_lecs, val_obs)
+    print gauss.get_sigma_intervals(val_lecs, val_obs)
+    gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+    print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 

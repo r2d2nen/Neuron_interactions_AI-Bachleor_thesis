@@ -142,7 +142,7 @@ class Parameters():
                 if value > 1:
                     delete_rows.append(i)
                     break
-        np.delete(lec_samples, delete_rows, axis=0)
+        lec_samples = np.delete(lec_samples, delete_rows, axis=0)
         lec_samples = np.multiply(self.half_volume_length, lec_samples)
         lec_samples += self.center_lecs
 
