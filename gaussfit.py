@@ -130,7 +130,7 @@ class Gaussfit:
             if e <= 2 * sigma[i]:
                 n[1] = n[1] + 1
             if e <= 3 * sigma[i]:
-                n[2] = n[1] + 1
+                n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid):

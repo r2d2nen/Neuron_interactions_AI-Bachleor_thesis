@@ -12,7 +12,7 @@ class Parameters():
     # Bring back functionality for center_lecs as center of interval
     # Can we move outside of physical boundarys for lecs?
     # 
-    #
+    # Make Parameters great again!
     #
     
     def __init__(self, interval_width, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3,
