@@ -8,15 +8,15 @@ import numpy as np
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 rescale_data = False
 
 # Generation parameters. Set these to generate different data
-samples = 1000
-lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+samples = 1001
+lec_lhs = 'gaussian'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
-interval = 0.9 # 0 to 1, percentage of total interval
+interval = 1 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
 energy = 50
 LEC_LENGTH = 16
@@ -27,8 +27,8 @@ generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
 
 
 # Which tags to read from database i we process data? Set these manually
-training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
-validation_tags = ['sgt50', 'validation1000', 'D_center_100%_gaussian_lecs']
+training_tags = ['sgt50', 'training1000', 'D_center_1000%_lhs_lecs']
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%_lhs_lecs']
 
 
 
