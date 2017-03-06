@@ -12,6 +12,8 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
+save_fig = True
+save_path = '/net/data1/ml2017/presentation/2017-03-06/'
 
 # Generation parameters. Set these to generate different data
 samples = 1000
@@ -29,7 +31,7 @@ generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
 
 # Which tags to read from database i we process data? Set these manually
 training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
-validation_tags = ['sgt50', 'validation1001', 'D_center_100%_gaussian_lecs']
+validation_tags = ['sgt50', 'validation1000', 'D_center_100%_gaussian_lecs']
 
 
 
@@ -38,6 +40,8 @@ param = Parameters(1, samples, center_lecs=lec_center)
 nsopt = NsoptCaller()
 gauss = Gaussfit()
 dm = Datamanager(echo=False)
+gauss.save_fig = save_fig
+gauss.save_path = save_path
 
 
 
@@ -119,8 +123,10 @@ if process_data:
         if rescale_data:
             val_lecs = gauss.rescale(val_lecs)
             
-        gauss.plot_predicted_actual(val_lecs, val_obs)
+        gauss.plot_predicted_actual(val_lecs, val_obs,
+                              training_tags=training_tags, validation_tags=validation_tags)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
-        gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+        gauss.plot_modelerror(val_lecs, train_lecs, val_obs,
+                              training_tags=training_tags, validation_tags=validation_tags)
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 

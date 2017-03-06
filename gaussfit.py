@@ -15,6 +15,25 @@ class Gaussfit:
         self.kernel = None
         self.model = None
         self.scale = None
+        self.save_fig = False
+        self.save_path = None
+
+    @property
+    def save_fig(self):
+        return self.save_fig
+
+    @save_fig.setter
+    def save_fig(self, save_fig):
+        self.save_fig = save_fig
+
+    @property
+    def save_path(self):
+        return self.save_path
+
+    @save_path.setter
+    def save_path(self, save_path):
+        self.save_path = save_path
+
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
         """Sets the kernel of this Gaussfit"""
@@ -87,7 +106,7 @@ class Gaussfit:
     """
     Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars
     """
-    def plot_predicted_actual(self, Xvalid, Yvalid):
+    def plot_predicted_actual(self, Xvalid, Yvalid, training_tags=' ', validation_tags=' '):
         (Ymodel, Variance) = self.model.predict(Xvalid)
         sigma = np.sqrt(Variance)
         plt.figure(1)
@@ -96,6 +115,11 @@ class Gaussfit:
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
         plt.xlabel('Simulated value')
         plt.ylabel('Predicted value')
+        title1 = ''.join(training_tags)
+        title1 += ' | ' + ' '.join(validation_tags)
+        plt.title(title1)
+        if self.save_fig:
+            plt.savefig(self.save_path + title1 + "_predicted_actual.png")
         plt.show()
         
     """
@@ -115,7 +139,7 @@ class Gaussfit:
                 n[2] = n[1] + 1
         return n/float(np.shape(errors)[0])
 
-    def plot_modelerror(self, Xvalid, Xlearn, Yvalid):
+    def plot_modelerror(self, Xvalid, Xlearn, Yvalid, training_tags=' ', validation_tags=' ' ):
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
@@ -125,13 +149,24 @@ class Gaussfit:
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated error')
         plt.axis([0, 1.1*max(mindists),  1.1*min(Ymodel-Yvalid), 1.1*max(Ymodel-Yvalid)])
+        title1 = ' '.join(training_tags)
+        title1 += ' | ' + ' '.join(validation_tags)
+        plt.title(title1)
+        if self.save_fig:
+            plt.savefig(self.save_path + title1 + "_val_error.png")
+            
         #TODO: decide between fig1 and fig2
         plt.figure(2)
         plt.plot(mindists, (Ymodel-Yvalid)/Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 1.1*min((Ymodel-Yvalid)/Yvalid), 1.1*max((Ymodel-Yvalid)/Yvalid)])
+        title2 = ' '.join(training_tags)
+        title2 += ' | ' + ' '.join(validation_tags)
+        plt.title(title2)
         #TODO: fix x-scale
+        if self.save_fig:
+            plt.savefig(self.save_path + title2 + "_val_rel_error.png")
         plt.show()
         
         # plot the model of training data with the model of walidation data 
