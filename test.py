@@ -1,3 +1,4 @@
+import sys
 from parameters import Parameters
 from nsoptcaller import NsoptCaller
 from gaussfit import Gaussfit
@@ -13,22 +14,27 @@ process_data = True
 rescale_data = True
 
 # Generation parameters. Set these to generate different data
-samples = 1000
+samples = 2000
 lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
-interval = 0.9 # 0 to 1, percentage of total interval
+interval = 0.5 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
 energy = 50
 LEC_LENGTH = 16
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
-generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
+generate_tags = ['sgt' + str(energy), 'training' + str(samples),
                  'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
 
 
 # Which tags to read from database i we process data? Set these manually
+<<<<<<< HEAD
 training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
 validation_tags = ['sgt50', 'validation1000', 'D_center_100%_lhs_lecs']
+=======
+training_tags = ['sgt50', 'training2000', 'D_center_50%_lhs_lecs']
+validation_tags = ['sgt50', 'validation250', 'D_center_50%_lhs_lecs']
+>>>>>>> 0b40e51891b10e8dd1476dcb0a58618f09429adc
 
 
 
@@ -71,8 +77,11 @@ if continue_generate:
     
     for i in xrange(samples):
         dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
-     
+
 if process_data:
+    if dm.num_matches(training_tags) <= 0 or dm.num_matches(validation_tags) <= 0:
+        sys.exit('Check your tags. No matched found in database.')
+    
     #Set empty arrays with zeros for training and validation data
     train_obs = np.array([0])
     train_energy = np.array([0])
@@ -98,6 +107,7 @@ if process_data:
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
+<<<<<<< HEAD
     for sample in xrange(100, 200, 100):
         val_obs = np.array([0])
         val_energy = np.array([0])
@@ -119,4 +129,25 @@ if process_data:
         print gauss.get_sigma_intervals(val_lecs, val_obs)
         gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
+=======
+    val_obs = np.array([0])
+    val_energy = np.array([0])
+    val_lecs = np.array(np.zeros(LEC_LENGTH))
+    #validation_tags[1] = 'validation' + str(sample)
+    for row in dm.read(validation_tags):
+        val_obs = np.vstack((val_obs, row.observable))
+        val_energy = np.vstack((val_energy, row.energy))
+        val_lecs = np.vstack((val_lecs, row.LECs))
+             
+    val_obs = np.delete(val_obs, 0, 0)
+    val_energy = np.delete(val_energy, 0, 0)
+    val_lecs = np.delete(val_lecs, 0,0)
+    if rescale_data:
+        val_lecs = gauss.rescale(val_lecs)
+         
+    gauss.plot_predicted_actual(val_lecs, val_obs)
+    print gauss.get_sigma_intervals(val_lecs, val_obs)
+    gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
+    print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
+>>>>>>> 0b40e51891b10e8dd1476dcb0a58618f09429adc
 

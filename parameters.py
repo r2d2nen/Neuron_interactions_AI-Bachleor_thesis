@@ -1,5 +1,8 @@
 import numpy as np
 import pyDOE as pydoe
+from scipy.spatial.distance import pdist
+from scipy.optimize import minimize
+
 class Parameters():
     """Handles input and generation of LECs.
     """
@@ -12,7 +15,8 @@ class Parameters():
     #
     #
     
-    def __init__(self, interval_width, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3):
+    def __init__(self, interval_width, nbr_of_samples, center_lecs=None, nbr_of_points_1d = 3,
+                 maxfun=2000000, maxiter=1000, disp=True):
         """Set up parameter volume from supplied intervals.
         
         Args:
@@ -21,6 +25,9 @@ class Parameters():
         nbr_of_samples - number of data points we want to generate in the volume.
         nbr_of_points_1d - number of sample points to be generated for each lec dimension
         (used by create_monospaced_lecs)
+        maxfun - number of function evaluations used by optimizer
+        maxiter - number of iterations in optimizer
+        disp - prints convergence results in optimizer if true
         """
         
         # A dictionary containing all 16 LEC:s as keys and their intervals as values in a tuple
@@ -82,6 +89,9 @@ class Parameters():
         self.nbr_of_samples = nbr_of_samples
         self.nbr_of_lecs = len(self.lecs_dict.keys())
         self.nbr_of_points_1d = nbr_of_points_1d
+        self.maxfun = maxfun
+        self.maxiter = maxiter
+        self.disp = disp
         
         # If we have no center interval input use default file as center_lecs
         if center_lecs is None:
@@ -128,11 +138,21 @@ class Parameters():
         return lecs_grid
 
 
-
+    
+    """Create a set of lecs with a normal distribution in every dimension.
+    Default is sigma=1/3 of interval
+    Also cuts off the outliers outside of the volume, meaning you will get fewer rows than suspected
+    """
     def create_gaussian_lecs(self):
-        """Create a set of lecs with a normal distribution in every dimension. Default is sigma=1/3 of interval"""
         lec_samples = np.random.normal(loc=0, scale=0.3,
                 size=(self.nbr_of_samples, self.nbr_of_lecs))
+        delete_rows = []
+        for i, row in enumerate(lec_samples):
+            for value in row:
+                if value > 1:
+                    delete_rows.append(i)
+                    break
+        lec_samples = np.delete(lec_samples, delete_rows, axis=0)
         lec_samples = np.multiply(self.half_volume_length, lec_samples)
         lec_samples += self.center_lecs
 
@@ -179,6 +199,48 @@ class Parameters():
         
         return lec_samples
 
+    def create_maxmin_distance_lecs(self):
+        "Creates matrix of LECs where the minimum distance between two points is maximized"
+        
+        nbr_of_dims = 14
+        
+        X = np.random.uniform(size=(self.nbr_of_samples, nbr_of_dims))
+
+        # function that is minimized
+        def min_distance(X):
+            X = X.reshape(-1, nbr_of_dims)
+            Y = pdist(X)
+            mindist = np.amin(Y)
+            return mindist * (-1)
+
+        minval = 0
+        maxval = 1
+
+        # tuple of bounds for optimizer
+        bnds = ((minval, maxval),) * X.size
+
+        # options for optimizer
+        opts = {'maxfun': self.maxfun, 'maxiter': self.maxiter, 'disp': self.disp}
+
+        # optimization
+        results = minimize(min_distance, X, method='l-bfgs-b', bounds=bnds, options=opts)
+
+        points = results.x
+        points = points.reshape(-1, nbr_of_dims)
+
+        # insert columns for lecs C_E and C_D
+        points = np.insert(points,11,0,axis=1)
+        points = np.insert(points,11,0,axis=1)
+
+        # transform intervals from 0,1 to specified lec intervals
+        lec_min = self.center_lecs - self.half_volume_length
+        lec_samples = 2*np.multiply(self.half_volume_length, points)
+        lec_samples += lec_min
+
+        lec_samples = self.replace_superflous_lecs(lec_samples)
+        
+        return lec_samples
+
     def center_of_lecs_interval(self):
         """Returns vector with center of total LEC intervals."""
         
@@ -210,4 +272,6 @@ class Parameters():
     @nbr_of_samples.setter
     def nbr_of_samples(self, nbr_of_samples):
         self._nbr_of_samples = nbr_of_samples
+
+        
         

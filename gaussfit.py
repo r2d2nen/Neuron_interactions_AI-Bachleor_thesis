@@ -139,16 +139,16 @@ class Gaussfit:
         mindists = np.min(alldists, axis=1)
         (Ymodel, _) = self.model.predict(Xvalid)
         plt.figure(1)
-        plt.plot(mindists, abs(Ymodel-Yvalid), '.')
+        plt.plot(mindists, Ymodel-Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated error')
-        plt.axis([0, 1.1*max(mindists), 0, 1.1*max(abs(Ymodel-Yvalid))])
+        plt.axis([0, 1.1*max(mindists),  1.1*min(Ymodel-Yvalid), 1.1*max(Ymodel-Yvalid)])
         #TODO: decide between fig1 and fig2
         plt.figure(2)
-        plt.plot(mindists, abs((Ymodel-Yvalid)/Yvalid), '.')
+        plt.plot(mindists, (Ymodel-Yvalid)/Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated relative error')
-        plt.axis([0, 1.1*max(mindists), 0, 1.1*max(abs((Ymodel-Yvalid)/Yvalid))])
+        plt.axis([0, 1.1*max(mindists), 1.1*min((Ymodel-Yvalid)/Yvalid), 1.1*max((Ymodel-Yvalid)/Yvalid)])
         #TODO: fix x-scale
         plt.show()
         
