@@ -15,6 +15,7 @@ class Gaussfit:
         self.kernel = None
         self.model = None
         self.scale = None
+        self.translate = None
         self.save_fig = False
         self.save_path = None
 
@@ -33,7 +34,6 @@ class Gaussfit:
     @save_path.setter
     def save_path(self, save_path):
         self.save_path = save_path
-
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
         """Sets the kernel of this Gaussfit"""
@@ -66,15 +66,32 @@ class Gaussfit:
         #Something worng, model doesn't always converge
         self.model.optimize_restarts(num_restarts=num_restarts, messages=True)
         
-    def rescale(self, inMatrix):
+    def rescale(self, inlecs, inobs):
         """Rescales the input parameters that Gpy handles,
            so that they are in the interval [-1,1] #Remove 16xnr 
         """
-            
-        def rescale(colum):
+        
+        if self.translate is None:
+            self.translate = np.append(np.mean(inlecs, axis=0), np.mean(inobs))
+        
+        inlecs = inlecs - self.translate[None,:16]
+        inobs = inobs - self.translate[16]
+        
+        if self.scale is None:
+            self.scale = np.append(np.amax(abs(inlecs), axis=0), max(abs(inobs)))
+            self.scale[self.scale == 0] = 1
+        outlecs = inlecs / self.scale[None,:16]
+        outobs = inobs / self.scale[16]
+
+        return (outlecs, outobs)
+        '''def rescale(colum):
             """Rescales the input parameters that Gpy handles,
             so that they are in the interval [-1,1] #Remove 16xnr 
             """
+
+            if self.translate is None:
+                self.translate = np.mean(colum)
+            colum = colum - self.translate
             
             if self.scale is None: #allows only for on value of scale for each gauss object
                 self.scale = max(abs(colum))
@@ -84,7 +101,7 @@ class Gaussfit:
         
             return new_array
             
-        return np.apply_along_axis(rescale, axis=0, arr=inMatrix) 
+        return np.apply_along_axis(rescale, axis=0, arr=inMatrix)'''
 
     def plot(self):
         """Plot the GP-model"""
@@ -136,7 +153,7 @@ class Gaussfit:
             if e <= 2 * sigma[i]:
                 n[1] = n[1] + 1
             if e <= 3 * sigma[i]:
-                n[2] = n[1] + 1
+                n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
     def plot_modelerror(self, Xvalid, Xlearn, Yvalid, training_tags=' ', validation_tags=' ' ):
