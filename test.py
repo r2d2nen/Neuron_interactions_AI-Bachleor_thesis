@@ -8,22 +8,22 @@ import numpy as np
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = True
-process_data = False
+generate_data = False
+process_data = True
 rescale_data = False
 
 # Generation parameters. Set these to generate different data
 samples = 1000
-lec_lhs = 'gaussian'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
-interval = 1 # 0 to 1, percentage of total interval
+interval = 0.9 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
 energy = 50
 LEC_LENGTH = 16
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
-generate_tags = ['sgt' + str(energy), 'training' + str(samples),
-                 'D_center_' + str(interval*100) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
+generate_tags = ['sgt' + str(energy), 'validation' + str(samples),
+                 'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
 
 
 # Which tags to read from database i we process data? Set these manually
@@ -42,8 +42,6 @@ dm = Datamanager(echo=False)
 
 # Sample generation, add to database. Do we want to generate and are the tags not used before?
 # TODO(DANIEL): Add question if used really wants to add data to tags already used
-#for samples in xrange(200, 1600, 100):
-    
 
 if generate_data and dm.num_matches(generate_tags) <= 0:
     continue_generate = True
@@ -73,12 +71,7 @@ if continue_generate:
     
     for i in xrange(samples):
         dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
-    
-    #for row in dm.read(['test']):
-        #print row.observable
-        #print(param.create_monospaced_lecs())
-        #print(param.create_lhs_lecs())
-            
+     
 if process_data:
     #Set empty arrays with zeros for training and validation data
     train_obs = np.array([0])
@@ -102,7 +95,6 @@ if process_data:
 
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(in_dim=LEC_LENGTH)
-    #train_lecs = gauss.rescale(train_lecs)
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
@@ -126,6 +118,5 @@ if process_data:
         gauss.plot_predicted_actual(val_lecs, val_obs)
         print gauss.get_sigma_intervals(val_lecs, val_obs)
         gauss.plot_modelerror(val_lecs, train_lecs, val_obs)
-        print('Number of validation data: ' + str(sample))
         print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
 

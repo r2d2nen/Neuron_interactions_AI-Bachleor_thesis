@@ -198,7 +198,7 @@ class Data():
         return 'Datachunk: observable=%d, energy=%d'%(self.observable, self.energy)
 
 if __name__ == '__main__':
-    dm = Datamanager(echo=True)
+    dm = Datamanager()
     dm.list_combinations()
     #print dm.read(['sgt50'], unique=True)
     #dm.insert(tags=['sgt', 'training', 'test'], observable=100, energy=50)

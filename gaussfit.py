@@ -92,7 +92,7 @@ class Gaussfit:
         sigma = np.sqrt(Variance)
         plt.figure(1)
         plt.plot(Yvalid, Ymodel, '.')
-        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt=None)
+        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none')
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
         plt.xlabel('Simulated value')
         plt.ylabel('Predicted value')
