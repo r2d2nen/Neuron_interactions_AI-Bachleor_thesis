@@ -128,11 +128,21 @@ class Parameters():
         return lecs_grid
 
 
-
+    
+    """Create a set of lecs with a normal distribution in every dimension.
+    Default is sigma=1/3 of interval
+    Also cuts off the outliers outside of the volume, meaning you will get fewer rows than suspected
+    """
     def create_gaussian_lecs(self):
-        """Create a set of lecs with a normal distribution in every dimension. Default is sigma=1/3 of interval"""
         lec_samples = np.random.normal(loc=0, scale=0.3,
                 size=(self.nbr_of_samples, self.nbr_of_lecs))
+        delete_rows = []
+        for i, row in enumerate(lec_samples):
+            for value in row:
+                if value > 1:
+                    delete_rows.append(i)
+                    break
+        np.delete(lec_samples, delete_rows, axis=0)
         lec_samples = np.multiply(self.half_volume_length, lec_samples)
         lec_samples += self.center_lecs
 
