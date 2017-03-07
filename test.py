@@ -13,7 +13,7 @@ generate_data = False
 process_data = True
 rescale_data = False
 save_fig = True
-save_path = '/net/data1/ml2017/presentation/2017-03-06/'
+save_path = '/net/data1/ml2017/presentation/'
 
 # Generation parameters. Set these to generate different data
 samples = 2000
@@ -105,8 +105,6 @@ if process_data:
     gauss.populate_gp_model(train_obs, train_lecs)
     gauss.optimize()
     
-
-
     val_obs = np.array([0])
     val_energy = np.array([0])
     val_lecs = np.array(np.zeros(LEC_LENGTH))
@@ -124,8 +122,8 @@ if process_data:
         (val_lecs, val_obs) = gauss.rescale(val_lecs, val_obs)
             
     gauss.plot_predicted_actual(val_lecs, val_obs,
-                                training_tags=training_tags, validation_tags=validation_tags)
+                                training_tags, validation_tags)
     print gauss.get_sigma_intervals(val_lecs, val_obs)
     gauss.plot_modelerror(val_lecs, train_lecs, val_obs,
-                          training_tags=training_tags, validation_tags=validation_tags)
+                          training_tags, validation_tags)
     print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))

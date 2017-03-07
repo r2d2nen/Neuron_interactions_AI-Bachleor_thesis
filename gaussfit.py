@@ -104,26 +104,38 @@ class Gaussfit:
         return np.apply_along_axis(rescale, axis=0, arr=inMatrix)'''
 
     def plot(self):
-        """Plot the GP-model"""
-        """Plot limits only for 1D-case"""
+        """Plot the GP-model.
+        Plot limits only for 1D-case.
+        """
         print(self.model)
         self.model.plot()
         plt.show()
 
+    def tags_to_title(self, train_tags, val_tags):
+        """Create plot title from tags."""
+        title = '_'.join(train_tags)
+        title += '_' + '_'.join(val_tags)
+        return title
+        
+    def save_fig_to_file(self, filename):
+        """Saves the last specified global figure to file with filename
+        File path specified by self.file_path.
+        """
+        plt.savefig(self.save_path + filename)
 
-    """A measure of how great the model's error is compared to validation points
-    Currently uses the average relative error
-    """
+
     def get_model_error(self, Xvalid, Yvalid):
+        """A measure of how great the model's error is compared to validation points
+        Currently uses the average relative error
+        """
         (Ymodel, _) = self.model.predict(Xvalid)
         #Sum of a numpy array returns another array, we use the first (and only) element
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
 
-    """
-    Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars
-    """
-    def plot_predicted_actual(self, Xvalid, Yvalid, training_tags=' ', validation_tags=' '):
+
+    def plot_predicted_actual(self, Xvalid, Yvalid, train_tags, val_tags):
+        """Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars."""
         (Ymodel, Variance) = self.model.predict(Xvalid)
         sigma = np.sqrt(Variance)
         plt.figure(1)
@@ -132,17 +144,15 @@ class Gaussfit:
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
         plt.xlabel('Simulated value')
         plt.ylabel('Predicted value')
-        title1 = ''.join(training_tags)
-        title1 += ' | ' + ' '.join(validation_tags)
-        plt.title(title1)
+        
+        # Do we want to save to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title1 + "_predicted_actual.png")
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_predicted_actual.png")
         plt.show()
         
-    """
-    Returns the fraction of errors within 1, 2, and 3 sigma 
-    """
+
     def get_sigma_intervals(self, Xvalid, Yvalid):
+        """Returns the fraction of errors within 1, 2, and 3 sigma"""
         (Ymodel, Variance) = self.model.predict(Xvalid)
         sigma = np.sqrt(Variance)
         n = np.array([0, 0, 0])
@@ -156,8 +166,8 @@ class Gaussfit:
                 n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
-    def plot_modelerror(self, Xvalid, Xlearn, Yvalid, training_tags=' ', validation_tags=' ' ):
-        """ Creates a plot showing the vallidated error """
+    def plot_modelerror(self, Xvalid, Xlearn, Yvalid, train_tags, val_tags):
+        """ Creates a plot showing the vallidated error."""
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
         (Ymodel, _) = self.model.predict(Xvalid)
@@ -166,28 +176,26 @@ class Gaussfit:
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated error')
         plt.axis([0, 1.1*max(mindists),  1.1*min(Ymodel-Yvalid), 1.1*max(Ymodel-Yvalid)])
-        title1 = ' '.join(training_tags)
-        title1 += ' | ' + ' '.join(validation_tags)
-        plt.title(title1)
+
+        #Do we want to save val error to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title1 + "_val_error.png")
-            
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_error.png")
         #TODO: decide between fig1 and fig2
         plt.figure(2)
         plt.plot(mindists, (Ymodel-Yvalid)/Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 1.1*min((Ymodel-Yvalid)/Yvalid), 1.1*max((Ymodel-Yvalid)/Yvalid)])
-        title2 = ' '.join(training_tags)
-        title2 += ' | ' + ' '.join(validation_tags)
-        plt.title(title2)
         #TODO: fix x-scale
+
+        #Do we want to save val error to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title2 + "_val_rel_error.png")
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_rel_error.png")
         plt.show()
         
-        # plot the model of training data with the model of walidation data 
+
     def plot_model(self, Xvalid, Xlearn, Yvalid):
+        """Plot the model of training data with the model of walidation data."""
         (Ymodel, _) = self.model.predict(Xlearn)
         plt.figure(3)
         plt.plot(Xlearn, Ymodel, 'bo')
