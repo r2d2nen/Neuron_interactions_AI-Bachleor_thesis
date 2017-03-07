@@ -18,6 +18,7 @@ class Gaussfit:
         self.translate = None
         self.save_fig = False
         self.save_path = None
+        self.kernel_name = None # Used for saving file names
 
     @property
     def save_fig(self):
@@ -37,6 +38,7 @@ class Gaussfit:
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'],
             variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale'], multi_dim=False):
+        self.kernel_name = kernel # This is used for saving file names
         """Sets the kernel of this Gaussfit"""
         if kernel == 'RBF':
             self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
@@ -121,11 +123,13 @@ class Gaussfit:
         """Create plot title from tags."""
         title = '_'.join(train_tags)
         title += '_' + '_'.join(val_tags)
+        title += '_' + str(self.kernel_name)
         return title
         
     def save_fig_to_file(self, filename):
         """Saves the last specified global figure to file with filename
         File path specified by self.file_path.
+        Also concatenates kernel name used
         """
         plt.savefig(self.save_path + filename)
 
