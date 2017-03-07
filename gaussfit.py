@@ -18,6 +18,7 @@ class Gaussfit:
         self.translate = None
         self.save_fig = False
         self.save_path = None
+        self.kernel_name = None # Used for saving file names
 
     @property
     def save_fig(self):
@@ -37,6 +38,7 @@ class Gaussfit:
     
     def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'],
             variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale'], multi_dim=False):
+        self.kernel_name = kernel # This is used for saving file names
         """Sets the kernel of this Gaussfit"""
         if kernel == 'RBF':
             self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
@@ -54,7 +56,7 @@ class Gaussfit:
             print 'Kernel not recognized or not implemented'
         
         
-    def populate_gp_model(self, observable, lecs, energy=None):
+    def populate_gp_model(self, observable, lecs, energy=None, rescale=False):
         """Creates a model based on given data and kernel.
         
         Args:
@@ -65,10 +67,12 @@ class Gaussfit:
         # Add row with energies to parameters for fit (c for col if that is that is the right way)
         if energy is not None:
             lecs = np.r_(lecs, energy)
+        if rescale:
+            (lecs, observable) = self.rescale(lecs, observable)
         lecs.transpose()
 
         observable.transpose()
-        self.model = GPRegression(lecs, observable,self.kernel)
+        self.model = GPRegression(lecs, observable, self.kernel)
 
     def optimize(self, num_restarts=1):
         """Optimize the model."""
@@ -90,7 +94,7 @@ class Gaussfit:
         
         if self.scale is None:
             self.scale = np.append(np.amax(abs(inlecs), axis=0), max(abs(inobs)))
-            self.scale[self.scale == 0] = 1
+            self.scale[self.scale <= 1e-10] = 1
         outlecs = inlecs / self.scale[None,:16]
         outobs = inobs / self.scale[16]
         
@@ -99,57 +103,67 @@ class Gaussfit:
     def calculate_valid(self, Xvalid):
         """Calculates model prediction in validation points"""
         if self.scale is not None:
-            Xvalid = Xvalid/self.scale[:16] - self.translate[:16]
+            Xvalid = (Xvalid-self.translate[None,:16]) / self.scale[None,:16]
             (Ymodel, Variance) = self.model.predict(Xvalid)
             Ymodel = Ymodel*self.scale[16] + self.translate[16]
             Variance = Variance*self.scale[16]*self.scale[16]
             return (Ymodel, Variance)
-        return self.model.predict(Xvalid)
+        else:
+            return self.model.predict(Xvalid)
 
     def plot(self):
-        """Plot the GP-model"""
-        """Plot limits only for 1D-case"""
+        """Plot the GP-model.
+        Plot limits only for 1D-case.
+        """
         print(self.model)
         self.model.plot()
         plt.show()
 
+    def tags_to_title(self, train_tags, val_tags):
+        """Create plot title from tags."""
+        title = '_'.join(train_tags)
+        title += '_' + '_'.join(val_tags)
+        title += '_' + str(self.kernel_name)
+        return title
+        
+    def save_fig_to_file(self, filename):
+        """Saves the last specified global figure to file with filename
+        File path specified by self.file_path.
+        Also concatenates kernel name used
+        """
+        plt.savefig(self.save_path + filename)
 
-    """A measure of how great the model's error is compared to validation points
-    Currently uses the average relative error
-    """
-    def get_model_error(self, Xvalid, Yvalid):
-        (Ymodel, _) = self.model.predict(Xvalid)
+
+    def get_model_error(self, Ymodel, Yvalid):
+        """A measure of how great the model's error is compared to validation points
+        Currently uses the average relative error
+        """
         #Sum of a numpy array returns another array, we use the first (and only) element
-        if self.scale is not None:
-            Ymodel = Ymodel*self.scale[16] + self.translate[16]
-            Yvalid = Yvalid*self.scale[16] + self.translate[16]
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
 
-    """
-    Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars
-    """
-    def plot_predicted_actual(self, Xvalid, Yvalid, training_tags=' ', validation_tags=' '):
-        (Ymodel, Variance) = self.model.predict(Xvalid)
+
+    def plot_predicted_actual(self, Ymodel, Yvalid, Variance, train_tags, val_tags):
+        """Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars."""
         sigma = np.sqrt(Variance)
         plt.figure(1)
         plt.plot(Yvalid, Ymodel, '.')
         plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none')
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
-        plt.xlabel('Simulated value')
-        plt.ylabel('Predicted value')
-        title1 = ''.join(training_tags)
-        title1 += ' | ' + ' '.join(validation_tags)
-        plt.title(title1)
+
+        plt.xlabel('Simulated value [mb]')
+        plt.ylabel('Emulated value [mb]')
+
+        # Do we want to save to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title1 + "_predicted_actual.png")
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_predicted_actual.png")
         plt.show()
         
-    """
-    Returns the fraction of errors within 1, 2, and 3 sigma 
-    """
-    def get_sigma_intervals(self, Xvalid, Yvalid):
-        (Ymodel, Variance) = self.model.predict(Xvalid)
+
+
+
+    def get_sigma_intervals(self, Ymodel, Yvalid, Variance):
+        """Returns the fraction of errors within 1, 2, and 3 sigma."""
         sigma = np.sqrt(Variance)
         n = np.array([0, 0, 0])
         errors = abs(Yvalid - Ymodel)
@@ -162,41 +176,36 @@ class Gaussfit:
                 n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
-    def plot_modelerror(self, Xvalid, Xlearn, Yvalid, training_tags=' ', validation_tags=' ' ):
+    def plot_modelerror(self, Xvalid, Xlearn, Ymodel, Yvalid, train_tags, val_tags):
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
-        (Ymodel, _) = self.model.predict(Xvalid)
         plt.figure(1)
         plt.plot(mindists, Ymodel-Yvalid, '.')
         plt.xlabel('Distance to closest training point')
-        plt.ylabel('Vallidated error')
+        plt.ylabel('Vallidated error [mb]')
         plt.axis([0, 1.1*max(mindists),  1.1*min(Ymodel-Yvalid), 1.1*max(Ymodel-Yvalid)])
-        title1 = ' '.join(training_tags)
-        title1 += ' | ' + ' '.join(validation_tags)
-        plt.title(title1)
+
+        #Do we want to save val error to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title1 + "_val_error.png")
-            
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_error.png")
         #TODO: decide between fig1 and fig2
         plt.figure(2)
         plt.plot(mindists, (Ymodel-Yvalid)/Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 1.1*min((Ymodel-Yvalid)/Yvalid), 1.1*max((Ymodel-Yvalid)/Yvalid)])
-        title2 = ' '.join(training_tags)
-        title2 += ' | ' + ' '.join(validation_tags)
-        plt.title(title2)
         #TODO: fix x-scale
+
+        #Do we want to save val error to file?
         if self.save_fig:
-            plt.savefig(self.save_path + title2 + "_val_rel_error.png")
+            self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_rel_error.png")
         plt.show()
         
-        # plot the model of training data with the model of walidation data 
-    def plot_model(self, Xvalid, Xlearn, Yvalid):
-        (Ymodel, _) = self.model.predict(Xlearn)
+    def plot_model(self, Xvalid, Ymodel, Yvalid):
+        """Plot the model of training data with the model of walidation data."""
         plt.figure(3)
-        plt.plot(Xlearn, Ymodel, 'bo')
+        plt.plot(Xvalid, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
 

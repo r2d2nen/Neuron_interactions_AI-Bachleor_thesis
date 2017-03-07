@@ -12,8 +12,8 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
-save_fig = False
-save_path = '/net/data1/ml2017/presentation/2017-03-06/'
+save_fig = True
+save_path = '/net/home/dakarlss/'
 
 # set True to save generated GPy model hyperparameters to file
 save_params = False
@@ -24,13 +24,19 @@ load_params = True
 params_load_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
 
 # Generation parameters. Set these to generate different data
-samples = 500
-lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
-lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
-interval = 0.5 # 0 to 1, percentage of total interval
+samples = 1000
+lec_lhs = '1dof'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+lec_index = '0' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
+interval = 1 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
 energy = 50
+
 LEC_LENGTH = 16
+
+
+
+
+
 
 #GPy parameters
 kernel = 'RBF' #'RBF', 'Exponential', 'Matern32', 'Matern52'
@@ -39,7 +45,7 @@ multi_dim = False #Use multi-dimensional (16) lengthscale
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
 generate_tags = ['sgt' + str(energy), 'training' + str(samples),
-                 'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs']
+                 'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs' + '_' + kernel]
 
 
 # Which tags to read from database i we process data? Set these manually
@@ -110,21 +116,18 @@ if process_data:
     train_energy = np.delete(train_energy, 0, 0)
     train_lecs = np.delete(train_lecs, 0, 0)
 
-    if rescale_data:
-        (train_lecs, train_obs) = gauss.rescale(train_lecs, train_obs)
-
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
             multi_dim=multi_dim)
+
     if load_params:
         gauss.load_model_parameters(train_obs, train_lecs, params_load_path)
     else:
-        gauss.populate_gp_model(train_obs, train_lecs)
+        gauss.populate_gp_model(train_obs, train_lecs, rescale=rescale_data)
         gauss.optimize()
 
     if save_params:
         gauss.save_model_parameters(params_save_path)
-
 
     val_obs = np.array([0])
     val_energy = np.array([0])
@@ -139,12 +142,12 @@ if process_data:
     val_energy = np.delete(val_energy, 0, 0)
     val_lecs = np.delete(val_lecs, 0,0)
 
-    if rescale_data:
-        (val_lecs, val_obs) = gauss.rescale(val_lecs, val_obs)
+    (mod_obs, mod_var) = gauss.calculate_valid(val_lecs)
             
-    gauss.plot_predicted_actual(val_lecs, val_obs,
-                                training_tags=training_tags, validation_tags=validation_tags)
-    print gauss.get_sigma_intervals(val_lecs, val_obs)
-    gauss.plot_modelerror(val_lecs, train_lecs, val_obs,
-                          training_tags=training_tags, validation_tags=validation_tags)
-    print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
+    gauss.plot_predicted_actual(mod_obs, val_obs, mod_var,
+                                training_tags, validation_tags)
+    print gauss.get_sigma_intervals(mod_obs, val_obs, mod_var)
+    gauss.plot_modelerror(val_lecs, train_lecs, mod_obs, val_obs,
+                          training_tags, validation_tags)
+    print('Model error: ' + str(gauss.get_model_error(mod_obs, val_obs)))
+
