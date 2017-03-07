@@ -135,4 +135,4 @@ if process_data:
     gauss.plot_modelerror(val_lecs, train_lecs, mod_obs, val_obs,
                           training_tags, validation_tags)
     print('Model error: ' + str(gauss.get_model_error(mod_obs, val_obs)))
->>>>>>> 9d87b6a177d61723b39a66932661843dcb2ab109
+
