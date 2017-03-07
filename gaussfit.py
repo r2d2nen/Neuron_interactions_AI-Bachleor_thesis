@@ -82,26 +82,18 @@ class Gaussfit:
             self.scale[self.scale == 0] = 1
         outlecs = inlecs / self.scale[None,:16]
         outobs = inobs / self.scale[16]
-
-        return (outlecs, outobs)
-        '''def rescale(colum):
-            """Rescales the input parameters that Gpy handles,
-            so that they are in the interval [-1,1] #Remove 16xnr 
-            """
-
-            if self.translate is None:
-                self.translate = np.mean(colum)
-            colum = colum - self.translate
-            
-            if self.scale is None: #allows only for on value of scale for each gauss object
-                self.scale = max(abs(colum))
-            if self.scale == 0: # All values are 0 
-                return colum
-            new_array =  colum/self.scale #scale all the values
         
-            return new_array
-            
-        return np.apply_along_axis(rescale, axis=0, arr=inMatrix)'''
+        return (outlecs, outobs)
+
+    def calculate_valid(self, Xvalid):
+        """Calculates model prediction in validation points"""
+        if self.scale is not None:
+            Xvalid = Xvalid/self.scale[:16] - self.translate[:16]
+            (Ymodel, Variance) = self.model.predict(Xvalid)
+            Ymodel = Ymodel*self.scale[16] + self.translate[16]
+            Variance = Variance*self.scale[16]*self.scale[16]
+            return (Ymodel, Variance)
+        return self.model.predict(Xvalid)
 
     def plot(self):
         """Plot the GP-model"""
@@ -117,6 +109,9 @@ class Gaussfit:
     def get_model_error(self, Xvalid, Yvalid):
         (Ymodel, _) = self.model.predict(Xvalid)
         #Sum of a numpy array returns another array, we use the first (and only) element
+        if self.scale is not None:
+            Ymodel = Ymodel*self.scale[16] + self.translate[16]
+            Yvalid = Yvalid*self.scale[16] + self.translate[16]
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
 
