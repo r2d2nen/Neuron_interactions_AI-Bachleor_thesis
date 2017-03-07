@@ -1,5 +1,5 @@
 import numpy as np
-from GPy.kern import RBF
+from GPy.kern import RBF, Exponential, Matern32, Matern52
 from GPy.models import GPRegression
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
@@ -35,13 +35,23 @@ class Gaussfit:
     def save_path(self, save_path):
         self.save_path = save_path
     
-    def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
+    def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'],
+            variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale'], multi_dim=False):
         """Sets the kernel of this Gaussfit"""
-        """Need to manually add the different kernels"""
         if kernel == 'RBF':
-            self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
+            self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Exponential':
+            self.kernel = Exponential(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Matern32':
+            self.kernel = Matern32(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Matern52':
+            self.kernel = Matern52(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
         else:
-            print 'Kernel not recognized'
+            print 'Kernel not recognized or not implemented'
         
         
     def populate_gp_model(self, observable, lecs, energy=None):
@@ -65,6 +75,7 @@ class Gaussfit:
         
         #Something worng, model doesn't always converge
         self.model.optimize_restarts(num_restarts=num_restarts, messages=True)
+        print self.model
         
     def rescale(self, inlecs, inobs):
         """Rescales the input parameters that Gpy handles,
