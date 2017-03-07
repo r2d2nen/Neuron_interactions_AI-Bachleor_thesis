@@ -139,7 +139,7 @@ class Gaussfit:
 
 
 
-    def plot_predicted_actual(self, Ymodel, Yvalid, Variance, training_tags=' ', validation_tags=' '):
+    def plot_predicted_actual(self, Ymodel, Yvalid, Variance, train_tags, val_tags):
         """Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars."""
         sigma = np.sqrt(Variance)
         plt.figure(1)
@@ -149,9 +149,6 @@ class Gaussfit:
 
         plt.xlabel('Simulated value [mb]')
         plt.ylabel('Emulated value [mb]')
-        title1 = ''.join(training_tags)
-        title1 += ' | ' + ' '.join(validation_tags)
-        plt.title(title1)
 
         # Do we want to save to file?
         if self.save_fig:
@@ -175,7 +172,7 @@ class Gaussfit:
                 n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
-    def plot_modelerror(self, Xvalid, Xlearn, Ymodel, Yvalid, training_tags=' ', validation_tags=' ' ):
+    def plot_modelerror(self, Xvalid, Xlearn, Ymodel, Yvalid, train_tags, val_tags):
         """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)

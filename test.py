@@ -13,7 +13,7 @@ generate_data = False
 process_data = True
 rescale_data = False
 save_fig = True
-save_path = '/net/data1/ml2017/presentation/'
+save_path = '/net/home/dakarlss/'
 
 # Generation parameters. Set these to generate different data
 samples = 1000
