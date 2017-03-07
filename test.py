@@ -15,6 +15,14 @@ rescale_data = False
 save_fig = False
 save_path = '/net/data1/ml2017/presentation/2017-03-06/'
 
+# set True to save generated GPy model hyperparameters to file
+save_params = False
+params_save_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
+
+# set True to load GPy model hyperparameters from file
+load_params = True
+params_load_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
+
 # Generation parameters. Set these to generate different data
 samples = 500
 lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
@@ -35,9 +43,9 @@ generate_tags = ['sgt' + str(energy), 'training' + str(samples),
 
 
 # Which tags to read from database i we process data? Set these manually
-validation_tags = ['sgt50', 'validation1000', 'D_center_100%_lhs_lecs']
+validation_tags = ['sgt50', 'validation250', 'D_center_50%_lhs_lecs']
 
-training_tags = ['sgt50', 'training1000', 'D_center_100%_lhs_lecs']
+training_tags = ['sgt50', 'training50', 'D_center_50%_lhs_lecs']
 
 # Set up necessary classes)
 param = Parameters(1, samples, center_lecs=lec_center)
@@ -108,9 +116,14 @@ if process_data:
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
             multi_dim=multi_dim)
-    gauss.populate_gp_model(train_obs, train_lecs)
-    gauss.optimize()
-    
+    if load_params:
+        gauss.load_model_parameters(train_obs, train_lecs, params_load_path)
+    else:
+        gauss.populate_gp_model(train_obs, train_lecs)
+        gauss.optimize()
+
+    if save_params:
+        gauss.save_model_parameters(params_save_path)
 
 
     val_obs = np.array([0])

@@ -199,4 +199,33 @@ class Gaussfit:
         plt.plot(Xlearn, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
+
+    def save_model_parameters(self, savepath):
+        "Saves GPy model hyperparameters as a .npy file"""
+        
+        if savepath.endswith(".npy"):
+            np.save(savepath, self.model.param_array)
+        else:
+            print "Model parameters must be saved as a .npy file"
+
+    def load_model_parameters(self, Ylearn, Xlearn, loadpath):
+        """Loads a GPy model with hyperparameters from a .npy file"""
+
+        Xlearn.transpose()
+        Ylearn.transpose()
+
+        m_load = GPRegression(Xlearn, Ylearn, self.kernel, initialize=False)
+        m_load.update_model(False)
+        m_load.initialize_parameter()
+        m_load[:] = np.load(loadpath)
+        m_load.update_model(True)
+
+        self.model = m_load
+
+        
+
+
+
+        
+        
         
