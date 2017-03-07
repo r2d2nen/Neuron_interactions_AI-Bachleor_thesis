@@ -108,13 +108,10 @@ if process_data:
     train_energy = np.delete(train_energy, 0, 0)
     train_lecs = np.delete(train_lecs, 0, 0)
 
-    if rescale_data:
-        (train_lecs, train_obs) = gauss.rescale(train_lecs, train_obs)
-
     # Set up Gaussfit stuff and plot our model error
     gauss.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
             multi_dim=multi_dim)
-    gauss.populate_gp_model(train_obs, train_lecs)
+    gauss.populate_gp_model(train_obs, train_lecs, rescale=rescale_data)
     gauss.optimize()
     
 
@@ -132,12 +129,11 @@ if process_data:
     val_energy = np.delete(val_energy, 0, 0)
     val_lecs = np.delete(val_lecs, 0,0)
 
-    if rescale_data:
-        (val_lecs, val_obs) = gauss.rescale(val_lecs, val_obs)
+    (mod_obs, mod_var) = gauss.calculate_valid(val_lecs)
             
-    gauss.plot_predicted_actual(val_lecs, val_obs,
+    gauss.plot_predicted_actual(mod_obs, val_obs, mod_var,
                                 training_tags=training_tags, validation_tags=validation_tags)
-    print gauss.get_sigma_intervals(val_lecs, val_obs)
-    gauss.plot_modelerror(val_lecs, train_lecs, val_obs,
+    print gauss.get_sigma_intervals(mod_obs, val_obs, mod_var)
+    gauss.plot_modelerror(val_lecs, train_lecs, mod_obs, val_obs,
                           training_tags=training_tags, validation_tags=validation_tags)
-    print('Model error: ' + str(gauss.get_model_error(val_lecs, val_obs)))
+    print('Model error: ' + str(gauss.get_model_error(mod_obs, val_obs)))
