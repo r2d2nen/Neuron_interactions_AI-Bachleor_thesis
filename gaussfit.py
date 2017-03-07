@@ -1,5 +1,5 @@
 import numpy as np
-from GPy.kern import RBF
+from GPy.kern import RBF, Exponential, Matern32, Matern52
 from GPy.models import GPRegression
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
@@ -35,16 +35,26 @@ class Gaussfit:
     def save_path(self, save_path):
         self.save_path = save_path
     
-    def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'], variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale']):
+    def set_gp_kernel(self, kernel=DEFAULTS['kernel'], in_dim=DEFAULTS['input_dim'],
+            variance=DEFAULTS['variance'], lengthscale=DEFAULTS['lengthscale'], multi_dim=False):
         """Sets the kernel of this Gaussfit"""
-        """Need to manually add the different kernels"""
         if kernel == 'RBF':
-            self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale)
+            self.kernel = RBF(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Exponential':
+            self.kernel = Exponential(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Matern32':
+            self.kernel = Matern32(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
+        elif kernel == 'Matern52':
+            self.kernel = Matern52(input_dim=in_dim, variance=variance, lengthscale=lengthscale,
+                    ARD=multi_dim)
         else:
-            print 'Kernel not recognized'
+            print 'Kernel not recognized or not implemented'
         
         
-    def populate_gp_model(self, observable, lecs, energy=None):
+    def populate_gp_model(self, observable, lecs, energy=None, rescale=False):
         """Creates a model based on given data and kernel.
         
         Args:
@@ -55,16 +65,19 @@ class Gaussfit:
         # Add row with energies to parameters for fit (c for col if that is that is the right way)
         if energy is not None:
             lecs = np.r_(lecs, energy)
+        if rescale:
+            (lecs, observable) = self.rescale(lecs, observable)
         lecs.transpose()
 
         observable.transpose()
-        self.model = GPRegression(lecs, observable,self.kernel)
+        self.model = GPRegression(lecs, observable, self.kernel)
 
     def optimize(self, num_restarts=1):
         """Optimize the model."""
         
         #Something worng, model doesn't always converge
         self.model.optimize_restarts(num_restarts=num_restarts, messages=True)
+        print self.model
         
     def rescale(self, inlecs, inobs):
         """Rescales the input parameters that Gpy handles,
@@ -79,29 +92,22 @@ class Gaussfit:
         
         if self.scale is None:
             self.scale = np.append(np.amax(abs(inlecs), axis=0), max(abs(inobs)))
-            self.scale[self.scale == 0] = 1
+            self.scale[self.scale <= 1e-10] = 1
         outlecs = inlecs / self.scale[None,:16]
         outobs = inobs / self.scale[16]
-
-        return (outlecs, outobs)
-        '''def rescale(colum):
-            """Rescales the input parameters that Gpy handles,
-            so that they are in the interval [-1,1] #Remove 16xnr 
-            """
-
-            if self.translate is None:
-                self.translate = np.mean(colum)
-            colum = colum - self.translate
-            
-            if self.scale is None: #allows only for on value of scale for each gauss object
-                self.scale = max(abs(colum))
-            if self.scale == 0: # All values are 0 
-                return colum
-            new_array =  colum/self.scale #scale all the values
         
-            return new_array
-            
-        return np.apply_along_axis(rescale, axis=0, arr=inMatrix)'''
+        return (outlecs, outobs)
+
+    def calculate_valid(self, Xvalid):
+        """Calculates model prediction in validation points"""
+        if self.scale is not None:
+            Xvalid = (Xvalid-self.translate[None,:16]) / self.scale[None,:16]
+            (Ymodel, Variance) = self.model.predict(Xvalid)
+            Ymodel = Ymodel*self.scale[16] + self.translate[16]
+            Variance = Variance*self.scale[16]*self.scale[16]
+            return (Ymodel, Variance)
+        else:
+            return self.model.predict(Xvalid)
 
     def plot(self):
         """Plot the GP-model.
@@ -124,36 +130,39 @@ class Gaussfit:
         plt.savefig(self.save_path + filename)
 
 
-    def get_model_error(self, Xvalid, Yvalid):
+    def get_model_error(self, Ymodel, Yvalid):
         """A measure of how great the model's error is compared to validation points
         Currently uses the average relative error
         """
-        (Ymodel, _) = self.model.predict(Xvalid)
         #Sum of a numpy array returns another array, we use the first (and only) element
         return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
 
 
 
-    def plot_predicted_actual(self, Xvalid, Yvalid, train_tags, val_tags):
+    def plot_predicted_actual(self, Ymodel, Yvalid, Variance, training_tags=' ', validation_tags=' '):
         """Plots the predicted values vs the actual values, adds a straight line and 2sigma error bars."""
-        (Ymodel, Variance) = self.model.predict(Xvalid)
         sigma = np.sqrt(Variance)
         plt.figure(1)
         plt.plot(Yvalid, Ymodel, '.')
         plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none')
         plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
-        plt.xlabel('Simulated value')
-        plt.ylabel('Predicted value')
-        
+
+        plt.xlabel('Simulated value [mb]')
+        plt.ylabel('Emulated value [mb]')
+        title1 = ''.join(training_tags)
+        title1 += ' | ' + ' '.join(validation_tags)
+        plt.title(title1)
+
         # Do we want to save to file?
         if self.save_fig:
             self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_predicted_actual.png")
         plt.show()
         
 
-    def get_sigma_intervals(self, Xvalid, Yvalid):
-        """Returns the fraction of errors within 1, 2, and 3 sigma"""
-        (Ymodel, Variance) = self.model.predict(Xvalid)
+
+
+    def get_sigma_intervals(self, Ymodel, Yvalid, Variance):
+        """Returns the fraction of errors within 1, 2, and 3 sigma."""
         sigma = np.sqrt(Variance)
         n = np.array([0, 0, 0])
         errors = abs(Yvalid - Ymodel)
@@ -166,15 +175,14 @@ class Gaussfit:
                 n[2] = n[2] + 1
         return n/float(np.shape(errors)[0])
 
-    def plot_modelerror(self, Xvalid, Xlearn, Yvalid, train_tags, val_tags):
-        """ Creates a plot showing the vallidated error."""
+    def plot_modelerror(self, Xvalid, Xlearn, Ymodel, Yvalid, training_tags=' ', validation_tags=' ' ):
+        """ Creates a plot showing the vallidated error """
         alldists = cdist(Xvalid, Xlearn, 'euclidean')
         mindists = np.min(alldists, axis=1)
-        (Ymodel, _) = self.model.predict(Xvalid)
         plt.figure(1)
         plt.plot(mindists, Ymodel-Yvalid, '.')
         plt.xlabel('Distance to closest training point')
-        plt.ylabel('Vallidated error')
+        plt.ylabel('Vallidated error [mb]')
         plt.axis([0, 1.1*max(mindists),  1.1*min(Ymodel-Yvalid), 1.1*max(Ymodel-Yvalid)])
 
         #Do we want to save val error to file?
@@ -193,12 +201,10 @@ class Gaussfit:
             self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_rel_error.png")
         plt.show()
         
-
-    def plot_model(self, Xvalid, Xlearn, Yvalid):
+    def plot_model(self, Xvalid, Ymodel, Yvalid):
         """Plot the model of training data with the model of walidation data."""
-        (Ymodel, _) = self.model.predict(Xlearn)
         plt.figure(3)
-        plt.plot(Xlearn, Ymodel, 'bo')
+        plt.plot(Xvalid, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
         

@@ -190,12 +190,12 @@ class Parameters():
         """
         lec_samples = np.tile(self.center_lecs,[self.nbr_of_samples,1])
 
-        minval = self.center_lecs[lecindex]-self.half_volume_length[lecindex]
-        maxval = self.center_lecs[lecindex]+self.half_volume_length[lecindex]
+        minval = self.center_lecs[0,lecindex]-self.half_volume_length[lecindex]
+        maxval = self.center_lecs[0,lecindex]+self.half_volume_length[lecindex]
         onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
 
         lec_samples[:,lecindex] = onedof_lec
-        lec_samples = replace_superflous_lecs(lec_samples)
+        lec_samples = self.replace_superflous_lecs(lec_samples)
         
         return lec_samples
 
