@@ -149,6 +149,26 @@ class NsoptCaller:
         self.observable = nsopt_observables
         return nsopt_observables
     
-#if __name__ == '__main__':
-#    ml = ml2017()
-#    ml.main()
+    """
+    Idea:
+    Run nsopt for specific Nmax, hbaromega
+    Then dig through the .dat file for our binding energies
+    Then return it (In some format, like tuple (Nmax, hbaromega, E))
+    """
+    def get_nsopt_binding(self, homega):
+        pot = 'N2LOsim'
+        lam = 500
+        cut = 290
+
+        removed_LECs = (14,17,18,19,20,21,22,23,24,25)
+
+        LECM = np.loadtxt(b'./resources/%s-%d-%d.LEC_values.txt' %(pot,lam,cut) )
+        LECM = np.delete(LECM,removed_LECs)
+
+        evaluate = 'include_evaluate_ncsm.ini'
+        nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
+        nsopt.terminate()
+        
+        '''Dig through .dat'''
+
+        return -28.3

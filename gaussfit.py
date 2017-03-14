@@ -189,15 +189,13 @@ class Gaussfit:
         #Do we want to save val error to file?
         if self.save_fig:
             self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_error.png")
-        #TODO: decide between fig1 and fig2
         plt.figure(2)
         plt.plot(mindists, (Ymodel-Yvalid)/Yvalid, '.')
         plt.xlabel('Distance to closest training point')
         plt.ylabel('Vallidated relative error')
         plt.axis([0, 1.1*max(mindists), 1.1*min((Ymodel-Yvalid)/Yvalid), 1.1*max((Ymodel-Yvalid)/Yvalid)])
-        #TODO: fix x-scale
 
-        #Do we want to save val error to file?
+        #Show model_error in plot
         if self.save_fig:
             self.save_fig_to_file(self.tags_to_title(train_tags, val_tags) + "_val_rel_error.png")
         plt.show()
