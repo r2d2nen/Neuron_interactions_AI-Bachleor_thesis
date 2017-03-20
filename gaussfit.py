@@ -4,6 +4,7 @@ from GPy.models import GPRegression
 from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
 from math import sqrt
+from matplotlib import style
 
 #Default values for the GP
 DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
@@ -132,7 +133,22 @@ class Gaussfit:
         Also concatenates kernel name used
         """
         plt.savefig(self.save_path + filename)
+        
+    def generate_and_save_tikz(self, Ymodel, Yvalid, Variance, train_tags, val_tags):
+        fig = plt.figure()
+        style.use('ggplot')
+        
+        sigma = np.sqrt(Variance)
+        plt.plot(Yvalid, Ymodel, '.')
+        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none')
+        plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
 
+        plt.xlabel('Simulated value [mb]')
+        plt.ylabel('Emulated value [mb]')
+        plt.grid(True)
+
+        from matplotlib2tikz import save as tikz_save
+        tikz_save(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex') 
 
     def get_model_error(self, Ymodel, Yvalid):
         """A measure of how great the model's error is compared to validation points

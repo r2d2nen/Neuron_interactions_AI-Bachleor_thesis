@@ -3,6 +3,7 @@ from parameters import Parameters
 from nsoptcaller import NsoptCaller
 from gaussfit import Gaussfit
 from datamanager import Datamanager
+from memory_profiler import profile
 import numpy as np
 
 
@@ -12,8 +13,8 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
-save_fig = False
-save_path = '/net/data1/ml2017/presentation/Daniel_resultat_plots/'
+save_fig = True
+save_path = '/net/data1/ml2017/Test_tikz/'
 
 # set True to save generated GPy model hyperparameters to file
 save_params = False
@@ -46,7 +47,7 @@ generate_tags = ['sgt' + str(energy), 'training' + str(samples),
 # Which tags to read from database i we process data? Set these manually
 validation_tags = ['sgt50', 'validation1000', 'D_center_50%_lhs_lecs']
 
-training_tags = ['sgt50', 'training2000', 'D_center_50%_lhs_lecs']
+training_tags = ['sgt50', 'training500', 'D_center_100%_lhs_lecs']
 
 # Set up necessary classes)
 param = Parameters(1, samples, center_lecs=lec_center)
@@ -155,6 +156,10 @@ if process_data:
             
     gauss.plot_predicted_actual(mod_obs, val_obs, mod_var,
                                 training_tags, validation_tags)
+    if save_fig:
+        gauss.generate_and_save_tikz(mod_obs, val_obs, mod_var,
+                                training_tags, validation_tags)
+    
     print gauss.get_sigma_intervals(mod_obs, val_obs, mod_var)
     gauss.plot_modelerror(val_lecs, train_lecs, mod_obs, val_obs,
                           training_tags, validation_tags)
