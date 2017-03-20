@@ -12,15 +12,15 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
-save_fig = True
-save_path = '/net/home/dakarlss/'
+save_fig = False
+save_path = '/net/data1/ml2017/presentation/Daniel_resultat_plots/'
 
 # set True to save generated GPy model hyperparameters to file
 save_params = False
 params_save_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
 
 # set True to load GPy model hyperparameters from file
-load_params = True
+load_params = False
 params_load_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
 
 # Generation parameters. Set these to generate different data
@@ -33,11 +33,6 @@ energy = 50
 
 LEC_LENGTH = 16
 
-
-
-
-
-
 #GPy parameters
 kernel = 'RBF' #'RBF', 'Exponential', 'Matern32', 'Matern52'
 lengthscale = 1.
@@ -49,9 +44,9 @@ generate_tags = ['sgt' + str(energy), 'training' + str(samples),
 
 
 # Which tags to read from database i we process data? Set these manually
-validation_tags = ['sgt50', 'validation250', 'D_center_50%_lhs_lecs']
+validation_tags = ['sgt50', 'validation1000', 'D_center_50%_lhs_lecs']
 
-training_tags = ['sgt50', 'training50', 'D_center_50%_lhs_lecs']
+training_tags = ['sgt50', 'training2000', 'D_center_50%_lhs_lecs']
 
 # Set up necessary classes)
 param = Parameters(1, samples, center_lecs=lec_center)
@@ -61,7 +56,22 @@ dm = Datamanager(echo=False)
 gauss.save_fig = save_fig
 gauss.save_path = save_path
 
+@profile
+def get_observable(lecs):
+    """Wrapper function to measure time with memory profiler."""
+    return nsopt.get_nsopt_observable(lecs)
 
+@profile
+def train_gp_model(train_obs, train_lecs):
+    """Populate and optimize GP model."""
+    gauss.populate_gp_model(train_obs, train_lecs, rescale=rescale_data)
+    gauss.optimize()
+    
+@profile
+def calculate_valid(val_lecs):
+    """Wrapper function to measure time with memory profiler."""
+    mod_obs, mod_var = gauss.calculate_valid(val_lecs)
+    return mod_obs, mod_var
 
 # Sample generation, add to database. Do we want to generate and are the tags not used before?
 # TODO(DANIEL): Add question if used really wants to add data to tags already used
@@ -90,7 +100,7 @@ if continue_generate:
         print('1dof lec index: ' + str(lec_index))
         lecs = param.create_lecs_1dof()
     print(generate_tags)
-    observables = nsopt.get_nsopt_observable(lecs)
+    observables = get_observable(lecs)
     
     for i in xrange(samples):
         dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
@@ -123,8 +133,7 @@ if process_data:
     if load_params:
         gauss.load_model_parameters(train_obs, train_lecs, params_load_path)
     else:
-        gauss.populate_gp_model(train_obs, train_lecs, rescale=rescale_data)
-        gauss.optimize()
+        train_gp_model(train_obs, train_lecs)
 
     if save_params:
         gauss.save_model_parameters(params_save_path)
@@ -142,7 +151,7 @@ if process_data:
     val_energy = np.delete(val_energy, 0, 0)
     val_lecs = np.delete(val_lecs, 0,0)
 
-    (mod_obs, mod_var) = gauss.calculate_valid(val_lecs)
+    mod_obs, mod_var = calculate_valid(val_lecs)
             
     gauss.plot_predicted_actual(mod_obs, val_obs, mod_var,
                                 training_tags, validation_tags)
