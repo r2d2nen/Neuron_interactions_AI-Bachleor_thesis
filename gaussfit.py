@@ -139,10 +139,11 @@ class Gaussfit:
         style.use('ggplot')
         
         sigma = np.sqrt(Variance)
-        plt.plot(Yvalid, Ymodel, '.')
-        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none')
-        plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-')
-
+        
+        plt.plot(Yvalid, Ymodel, '.', ms=1, zorder=2, color ='g', alpha=0.4)
+        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none', alpha=0.2, zorder=3)
+        plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-', linewidth=3, zorder=10, ms = 19)
+        
         plt.xlabel('Simulated value [mb]')
         plt.ylabel('Emulated value [mb]')
         plt.grid(True)
