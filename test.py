@@ -18,11 +18,11 @@ save_path = '/net/data1/ml2017/Test_tikz/'
 
 # set True to save generated GPy model hyperparameters, which training tags and model are used to
 # file. Saves objecs in .pickle with with pickle module.
-save_params = False
+save_params = True
 params_save_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
 
 # set True to load GPy model from file
-load_params = True
+load_params = False
 params_load_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
 
 # Generation parameters. Set these to generate different data

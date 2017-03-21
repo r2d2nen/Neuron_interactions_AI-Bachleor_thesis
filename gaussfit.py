@@ -6,6 +6,7 @@ from scipy.spatial.distance import cdist
 from math import sqrt
 from matplotlib import style
 import pickle
+import os
 
 #Default values for the GP
 DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
@@ -248,11 +249,13 @@ class Gaussfit:
 
         params = self.model.param_array
 
-        if savepath.endswith(".pickle"):
+        if (savepath.endswith(".pickle")) and (not os.path.isfile(savepath)):
             with open(savepath, 'w') as f:
                 pickle.dump([params, kernel, traintags, LEC_LENGTH, lengthscale, multidim], f)
-        else:
-            print "Model properties must be saved as .pickle file"
+        elif (not savepath.endswith(".pickle")):
+            print "*****ERROR***** Model properties must be saved as .pickle file *****ERROR*****"
+        elif os.path.isfile(savepath):
+            print "*****ERROR***** File already exists. Cannot save to existing file. *****ERROR*****"
 
     def load_model_parameters(self, Ylearn, Xlearn, loadpath):
         """Loads a GPy model with hyperparameters from a .pickle file"""
