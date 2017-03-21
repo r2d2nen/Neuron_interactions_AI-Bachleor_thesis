@@ -5,3 +5,4 @@
 *.swp
 *.swo
 .#*
+*_backup.py
