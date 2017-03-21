@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from scipy.spatial.distance import cdist
 from math import sqrt
 from matplotlib import style
+import pickle
 
 #Default values for the GP
 DEFAULTS = {'kernel': 'RBF', 'input_dim': 1, 'variance': 1., 'lengthscale': 1.}
@@ -224,24 +225,34 @@ class Gaussfit:
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
 
-    def save_model_parameters(self, savepath):
-        "Saves GPy model hyperparameters as a .npy file"""
-        
-        if savepath.endswith(".npy"):
-            np.save(savepath, self.model.param_array)
+    def save_model_parameters(self, savepath, traintags, kernel, LEC_LENGTH, lengthscale,
+                                  multidim):
+        "Saves GPy model hyperparameters as a .pickle file"""
+
+        params = self.model.param_array
+
+        if savepath.endswith(".pickle"):
+            with open(savepath, 'w') as f:
+                pickle.dump([params, kernel, traintags, LEC_LENGTH, lengthscale, multidim], f)
         else:
-            print "Model parameters must be saved as a .npy file"
+            print "Model properties must be saved as .pickle file"
 
     def load_model_parameters(self, Ylearn, Xlearn, loadpath):
-        """Loads a GPy model with hyperparameters from a .npy file"""
+        """Loads a GPy model with hyperparameters from a .pickle file"""
 
         Xlearn.transpose()
         Ylearn.transpose()
 
+        with open(loadpath, 'r') as f:
+            params, kernel, traintags, LEC_LENGTH, lengthscale, multi_dim = pickle.load(f)
+
+        self.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
+                           multi_dim=multi_dim)
+        
         m_load = GPRegression(Xlearn, Ylearn, self.kernel, initialize=False)
         m_load.update_model(False)
         m_load.initialize_parameter()
-        m_load[:] = np.load(loadpath)
+        m_load[:] = params
         m_load.update_model(True)
 
         self.model = m_load

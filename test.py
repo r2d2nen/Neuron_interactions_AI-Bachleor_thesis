@@ -5,7 +5,7 @@ from gaussfit import Gaussfit
 from datamanager import Datamanager
 from memory_profiler import profile
 import numpy as np
-
+import pickle
 
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
@@ -13,16 +13,17 @@ import numpy as np
 generate_data = False
 process_data = True
 rescale_data = False
-save_fig = True
+save_fig = False
 save_path = '/net/data1/ml2017/Test_tikz/'
 
-# set True to save generated GPy model hyperparameters to file
+# set True to save generated GPy model hyperparameters, which training tags and model are used to
+# file. Saves objecs in .pickle with with pickle module.
 save_params = False
-params_save_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
+params_save_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
 
-# set True to load GPy model hyperparameters from file
-load_params = False
-params_load_path = '/net/data1/ml2017/gpyparams/xxxxxx.npy'
+# set True to load GPy model from file
+load_params = True
+params_load_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
 
 # Generation parameters. Set these to generate different data
 samples = 1000
@@ -45,9 +46,16 @@ generate_tags = ['sgt' + str(energy), 'training' + str(samples),
 
 
 # Which tags to read from database i we process data? Set these manually
+# training tags will be read from file if load option is used
+
 validation_tags = ['sgt50', 'validation1000', 'D_center_50%_lhs_lecs']
 
-training_tags = ['sgt50', 'training500', 'D_center_100%_lhs_lecs']
+if load_params:
+    with open(params_load_path, 'r') as f:
+        tagsidx = 2
+        training_tags = pickle.load(f)[tagsidx]
+else:
+    training_tags = ['sgt50', 'training500', 'D_center_100%_lhs_lecs']
 
 # Set up necessary classes)
 param = Parameters(1, samples, center_lecs=lec_center)
@@ -137,7 +145,8 @@ if process_data:
         train_gp_model(train_obs, train_lecs)
 
     if save_params:
-        gauss.save_model_parameters(params_save_path)
+        gauss.save_model_parameters(params_save_path, training_tags, kernel, LEC_LENGTH,
+                                    lengthscale, multi_dim)
 
     val_obs = np.array([0])
     val_energy = np.array([0])
