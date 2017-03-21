@@ -137,20 +137,37 @@ class Gaussfit:
         
     def generate_and_save_tikz(self, Ymodel, Yvalid, Variance, train_tags, val_tags):
         fig = plt.figure()
-        style.use('ggplot')
+        style.use('grayscale')
         
         sigma = np.sqrt(Variance)
-        
-        plt.plot(Yvalid, Ymodel, '.', ms=1, zorder=2, color ='g', alpha=0.4)
-        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none', alpha=0.2, zorder=3)
-        plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-', linewidth=3, zorder=10, ms = 19)
+        Expected, = plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-', linewidth=2, zorder=10, ms = 19, label="Expected")
+        Data, = plt.plot(Yvalid, Ymodel, '.', ms=0.5, zorder=3, label="Data points")
+        plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none', alpha=0.5, zorder=1, label="Error bars")
         
         plt.xlabel('Simulated value [mb]')
         plt.ylabel('Emulated value [mb]')
         plt.grid(True)
+        
+        # Create a legend for the line.
+        
+        first_legend = plt.legend(handles=[Expected, Data], loc=4) #["Expected", "Data points"],
+        #third_legend = plt.legend(handles=[Error], loc=4)
 
         from matplotlib2tikz import save as tikz_save
-        tikz_save(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex') 
+        
+        #The folowing saves the file to folder as well as adding 3 rows. The "clip mode=individual" was a bit tricky to add so this is the ugly way to solve it.
+        tikz_save(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', 
+        figureheight = '\\textwidth*0.8,\nclip mode=individual',
+        figurewidth = '\\textwidth*0.8')
+        
+        #Last fix of tikz with script.
+        from fix_tikz import EditText
+        edit = EditText()
+        #adding legend
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\end{axis}', '\\legend{Data,Expected}\n\\end{axis}')
+        #adding forget plot
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks]', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks, forget plot]')
+        
 
     def get_model_error(self, Ymodel, Yvalid):
         """A measure of how great the model's error is compared to validation points
