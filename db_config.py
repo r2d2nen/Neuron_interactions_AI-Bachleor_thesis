@@ -41,16 +41,15 @@ class Measurement(Base):
 
     children = relationship('Tag', secondary=association_table)
 
-    def __init__(self, date=None, observable=None, energy=None, LECs=[], N=None, h_omega=None):
+    def __init__(self, date=None, observable=None, energy=None, LECs=[], n_max=None, hbar_omega=None):
         self.date = date
         self.observable = observable
         self.energy = energy
         self.LECs = LECs
-        self.n_max = N
-        self.h_omega = h_omega
+        self.n_max = n_max
+        self.h_omega = hbar_omega
         if len(LECs) == 0:
             LECs = [None for i in range(16)]
-        #I hate myself for writing these lines //Martin
         self.lec0 = LECs[0]
         self.lec1 = LECs[1]
         self.lec2 = LECs[2]
@@ -76,7 +75,6 @@ class Measurement(Base):
                 self.lec7, self.lec8, self.lec9,
                 self.lec10, self.lec11, self.lec12,
                 self.lec13, self.lec14, self.lec15]
-
 
 
     def __repr__(self):

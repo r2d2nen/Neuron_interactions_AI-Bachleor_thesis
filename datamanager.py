@@ -18,7 +18,7 @@ class Datamanager():
         self.Session = sessionmaker(bind=engine)
         self.s = self.Session()
 
-    def insert(self, tags=['default'], observable=None, energy=None, LECs=[]):
+    def insert(self, tags=['default'], observable=None, energy=None, LECs=[], hbar_omega=None, n_max=None):
         date = datetime.now()
         tags = tags[:]
         #We may still have measurements without LEC information
@@ -27,7 +27,7 @@ class Datamanager():
             return False
 
         #Create a new measurement row and query for mathching tags
-        new_meas = Measurement(date=date, observable=observable, energy=energy, LECs=LECs)
+        new_meas = Measurement(date=date, observable=observable, energy=energy, LECs=LECs, hbar_omega=hbar_omega, n_max=n_max)
         old_tags = self.s.query(Tag).filter(Tag.tag.in_(tags)).all()
         if not old_tags:
             #If there are no matching tags in database, add all of them
@@ -139,34 +139,12 @@ class Datamanager():
 
     """Returns all used combinations of tags, and the number of measurements associated"""
     def list_combinations(self):
-        combinations = []
-        relations = self.s.query(association_table.c.meas_id, Tag.tag).join(Tag).all()
-        index = relations[0][0]
-        tags = []
-        for row in relations:
-            #Keeps adding tags when meas_id is the same
-            if row[0] == index:
-                tags.append(row[1])
-            else:
-                new = True
-                #Checks to see if tag combination already is in combinations and adds 1 to counter
-                for comb in combinations:
-                    if Counter(comb[0]) == Counter(tags):
-                        comb[1] += 1
-                        new = False
-                        break
-                if new:
-                    combinations.append([tags, 1])
+        relations = self.s.query(func.group_concat(Tag.tag).distinct()).\
+                filter(association_table.c.tag_id == Tag.id).\
+                group_by(association_table.c.meas_id).all()
 
-                #Starts the next entry
-                index = row[0]
-                tags = [row[1]]
-        #Must add the last count manually
-        if Counter(comb[0]) == Counter(tags):
-            comb[1] += 1
-        print '\nNumber of points\tTags'
-        for c in combinations:
-            print str(c[1]) + '\t\t\t' + str(c[0])
+        for combination in relations:
+            print combination[0].replace(',', '\t\t')
 
     """
     Returns the number of lines in the database matching these tags.
@@ -192,6 +170,8 @@ class Data():
     def __init__(self, Meas):
         self.observable = Meas.observable
         self.energy = Meas.energy
+        self.hbar_omega = Meas.h_omega
+        self.n_max = int(Meas.n_max)    #Dirty hack
         self.LECs = Meas.LECs
 
     def __repr__(self):
