@@ -58,7 +58,7 @@ else:
     training_tags = ['sgt50', 'training500', 'D_center_100%_lhs_lecs']
 
 # Set up necessary classes)
-param = Parameters(1, samples, center_lecs=lec_center)
+param = Parameters(interval, samples, center_lecs=lec_center)
 nsopt = NsoptCaller()
 gauss = Gaussfit()
 dm = Datamanager(echo=False)
