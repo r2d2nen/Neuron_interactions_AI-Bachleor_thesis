@@ -157,14 +157,43 @@ class Parameters():
         lec_samples += self.center_lecs
 
         return lec_samples
-    
-    def create_lhs_lecs(self):
-        """Returns matrix of LECS sampled using latin hypercube sampling"""
-        lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
-        lec_min = self.center_lecs - self.half_volume_length
-        lec_samples = 2*np.multiply(self.half_volume_length, lec_samples)
 
-        lec_samples += lec_min
+    
+    
+    def create_lhs_lecs(self, energy_interval=None):
+        """Returns matrix of LECS sampled using latin hypercube sampling.
+
+        If energy_interval is given, also gives lhs samples energies.
+        
+        Energy interval is a tuple with start and stop,
+        eg (50, 250) means energies from 50 to 250 MeV are allowed
+        """
+        if energy_interval:
+            lec_samples = pydoe.lhs(self.nbr_of_lecs + 1, samples=self.nbr_of_samples)
+
+            # Make values in energy coloumn range from e_min to e_max
+            energy_samples = lec_samples[:,-1]
+            energy_samples = energy_samples * (energy_interval[1] - energy_interval[0])
+            energy_samples += energy_interval[0]
+            print(energy_samples)
+            
+            lec_min = self.center_lecs - self.half_volume_length
+            # Fix dimension issue by appending a 1, same further down
+            lec_samples = 2*np.multiply(np.append(self.half_volume_length, 1), lec_samples)
+
+            lec_samples += np.append(lec_min, 1)
+
+            # Add energy coloumn back
+            lec_samples[:,-1] = energy_samples
+            
+        else:
+            lec_samples = self.replace_superflous_lecs(lec_samples)
+        
+            lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
+            lec_min = self.center_lecs - self.half_volume_length
+            lec_samples = 2*np.multiply(self.half_volume_length, lec_samples)
+
+            lec_samples += lec_min
 
         lec_samples = self.replace_superflous_lecs(lec_samples)
         
