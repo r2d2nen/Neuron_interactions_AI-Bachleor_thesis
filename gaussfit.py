@@ -145,8 +145,8 @@ class Gaussfit:
         Data, = plt.plot(Yvalid, Ymodel, '.', ms=0.5, zorder=3, label="Data points")
         plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none', alpha=0.5, zorder=1, label="Error bars")
         
-        plt.xlabel('Simulated value [mb]')
-        plt.ylabel('Emulated value [mb]')
+        plt.xlabel('Simulated value [\si{\milli\barn}]')
+        plt.ylabel('Emulated value [\si{\milli\barn}]')
         plt.grid(True)
         
         # Create a legend for the line.
