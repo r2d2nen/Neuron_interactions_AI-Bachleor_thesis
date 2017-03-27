@@ -149,8 +149,10 @@ class Gaussfit:
         plt.ylabel('Emulated value [mb]')
         plt.grid(True)
         
-        # Create a legend for the line.
+        modelError = str(self.get_model_error(Ymodel, Yvalid))
         
+        
+        # Create a legend for the line.
         first_legend = plt.legend(handles=[Expected, Data], loc=4) #["Expected", "Data points"],
         #third_legend = plt.legend(handles=[Error], loc=4)
 
@@ -164,6 +166,9 @@ class Gaussfit:
         #Last fix of tikz with script.
         from fix_tikz import EditText
         edit = EditText()
+        #adding tikz file info
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '% This file was created by matplotlib2tikz v0.6.3.', '%  ' + self.save_path + '\n%  ' + self.tags_to_title(train_tags, val_tags) + '\n%  Model Error: ' + modelError)
+        
         #adding legend
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\end{axis}', '\\legend{Data,Expected}\n\\end{axis}')
         #adding forget plot
