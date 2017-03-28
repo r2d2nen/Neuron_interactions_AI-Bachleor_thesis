@@ -59,7 +59,7 @@ class Gaussfit:
             print 'Kernel not recognized or not implemented'
         
         
-    def populate_gp_model(self, observable, lecs, energy=None, rescale=False):
+    def populate_gp_model(self, observable, lecs, energy=None, rescale=False, fixvariance=0):
         """Creates a model based on given data and kernel.
         
         Args:
@@ -76,6 +76,12 @@ class Gaussfit:
 
         observable.transpose()
         self.model = GPRegression(lecs, observable, self.kernel)
+
+        self.model.Gaussian_noise.variance.unconstrain()
+
+        self.model.Gaussian_noise.variance = fixvariance
+
+        self.model.Gaussian_noise.variance.fix()
 
     def optimize(self, num_restarts=1):
         """Optimize the model."""
