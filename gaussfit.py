@@ -177,10 +177,10 @@ class Gaussfit:
 
     def get_model_error(self, Ymodel, Yvalid):
         """A measure of how great the model's error is compared to validation points
-        Currently uses the average relative error
+        Currently uses the rms of the relative error
         """
         #Sum of a numpy array returns another array, we use the first (and only) element
-        return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
+        return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/Yvalid)))
 
 
 
