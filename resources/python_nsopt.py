@@ -31,7 +31,7 @@ class PythonNsopt(object):
            output of nsopt. Default is true
     """
 
-    def __init__(self, path_libnsopt, folder_inifiles, ini_string="", redirect=True):
+    def __init__(self, path_libnsopt, folder_inifiles, ini_string="", redirect=True, energy=None):
         """For more information on way the statup and configuration is done this
         way. See examplefile pyif.py by Boris"""
 
@@ -55,6 +55,9 @@ class PythonNsopt(object):
             for line in ini_string.split('\n'):
                 self.nsopt.chp_ini_read_line(self.nsopt.cfast_ini_get(), b".",
                                          line, self.ininow)
+        if energy:
+            self.nsopt.chp_ini_read_line(self.nsopt.cfast_ini_get(), b".",
+                                         b"Elist=1 " + str(energy), self.ininow)
 
         self.nsopt.program_initialization_()
 

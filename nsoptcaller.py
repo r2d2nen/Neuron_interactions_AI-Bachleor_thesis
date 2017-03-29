@@ -1,4 +1,3 @@
-
 from resources import python_nsopt
 import numpy as np
 import os
@@ -6,6 +5,8 @@ from matplotlib import pyplot as plt
 import sys
 import ConfigParser
 import StringIO
+import time
+from multiprocessing import Process, Manager, cpu_count
 
 
 # Init files and path to nsopt
@@ -102,15 +103,31 @@ class NsoptCaller:
         
         self.energies = X
         return X
+
+    def nsopt_calculation(self, energy, lecs, number, observable_list):
+        """Target function for multiprocessing for calculating nsopt observables for different energies. """
+        evaluate = 'include evaluate_xsec.ini'
+        nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate, energy=energy)
+        observable_list[number] = nsopt.calculate_observable(lecs)
+        nsopt.terminate()
+
+    def remove_finished_process(self, process_list):
+        """Check if any processes has stopped, if it has. Delete them from our list"""
+        for idx, process in enumerate(process_list):
+            if not process.is_alive():
+                process.join()
+                del process_list[idx]
+            
     
    
-    def get_nsopt_observable(self, LECM=None):    
+    def get_nsopt_observable(self, energies, LECM=None):    
         """
         Takes a matrix of LECs LECM and calls nsopt to calculate the observable. Each row in LECM is a
         set of LECs. Returns nsopt_observable where each row corresponds to a different set of LECs.
+Energy is a vector with energies associated with each sample
         Reads a set of default LEC values if no LECM is given.
         """
-
+        
         # sets default LECM
         if LECM is None:
             pot = 'N2LOsim'
@@ -128,47 +145,40 @@ class NsoptCaller:
         if len(LECM.shape) == 1:
             LECM = LECM.reshape(1,-1)
 
-        evaluate = 'include evaluate_xsec.ini'
         # evaluate = 'include evaluate_ncsm.ini'
-        nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
 
-        # calls nsopt for each set of LECs in LECM
+       
+        # Set up manager for distributing a observable list between processes.
+        manager = Manager()
+        observables = manager.list(range(len(LECM)))
+        process_list = []
+        MAX_PROCESSES = cpu_count() - 1 if  cpu_count() > 1 else 1 
+        
+         # calls nsopt for each set of LECs in LECM
         for i in range(len(LECM)):
-            temp = nsopt.calculate_observable(LECM[i,:])
+            process = Process(target=self.nsopt_calculation, args=(energies[i], LECM[i,:], i, observables))
+            process.start()
+            process_list.append(process)
 
-            if i == 0:
-                nsopt_observables = temp
-            else:
-                nsopt_observables = np.vstack((nsopt_observables, temp))
+            # Wait for a process spot to be empty
+            while len(process_list) >= MAX_PROCESSES:
+                self.remove_finished_process(process_list)
+                time.sleep(0.5)
+
+        # Empty process list
+        while process_list:
+            self.remove_finished_process(process_list)
+            time.sleep(1)
+
+        print(observables)
+
+        tmp_obs = np.asarray(observables)
+        trimmed_obs = np.zeros(len(tmp_obs))
+        for row in xrange(len(tmp_obs)):
         
+            trimmed_obs[row] = np.trim_zeros(tmp_obs[row,:])
 
-            #print nsopt_observables
-    
-        nsopt.terminate()
+           
 
-        self.observable = nsopt_observables
-        return nsopt_observables
-    
-    """
-    Idea:
-    Run nsopt for specific Nmax, hbaromega
-    Then dig through the .dat file for our binding energies
-    Then return it (In some format, like tuple (Nmax, hbaromega, E))
-    """
-    def get_nsopt_binding(self, homega):
-        pot = 'N2LOsim'
-        lam = 500
-        cut = 290
-
-        removed_LECs = (14,17,18,19,20,21,22,23,24,25)
-
-        LECM = np.loadtxt(b'./resources/%s-%d-%d.LEC_values.txt' %(pot,lam,cut) )
-        LECM = np.delete(LECM,removed_LECs)
-
-        evaluate = 'include_evaluate_ncsm.ini'
-        nsopt = python_nsopt.PythonNsopt(PATH_LIBNSOPT, PATH_INIFILES, ini_string=evaluate)
-        nsopt.terminate()
-        
-        '''Dig through .dat'''
-
-        return -28.3
+        self.observable = trimmed_obs
+        return self.observable

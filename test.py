@@ -10,28 +10,30 @@ import pickle
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 rescale_data = False
 save_fig = False
-save_path = '/net/data1/ml2017/Test_tikz/'
+save_path = '/net/data1/ml2017/presentation/'
 
 # set True to save generated GPy model hyperparameters, which training tags and model are used to
 # file. Saves objecs in .pickle with with pickle module.
-save_params = True
+save_params = False
 params_save_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
 
 # set True to load GPy model from file
-load_params = False
-params_load_path = '/net/data1/ml2017/gpyparams/testsave.pickle'
+load_params = True
+params_load_path = '/net/data1/ml2017/gpyparams/Matern52_validation_3000_memcenter100lhs_sgt50_multidim.pickle'
 
 # Generation parameters. Set these to generate different data
 samples = 1000
-lec_lhs = '1dof'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
-lec_index = '0' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
+lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
+lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1 # 0 to 1, percentage of total interval
 lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your own vector with center
-energy = 50
+
+#THIS ONLY WORKS FOR LHS LECS AS OF NOW. (STASR, STOP)
+energy = (1, 150)
 
 LEC_LENGTH = 16
 
@@ -42,13 +44,13 @@ multi_dim = False #Use multi-dimensional (16) lengthscale
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
 generate_tags = ['sgt' + str(energy), 'training' + str(samples),
-                 'D_center_' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs' + '_' + kernel]
+                 'D_test_energy_curve' + str(int(interval*100)) + '%_' + str(lec_lhs) + str(lec_index) + '_lecs' + '_' + kernel]
 
 
 # Which tags to read from database i we process data? Set these manually
 # training tags will be read from file if load option is used
 
-validation_tags = ['sgt50', 'validation1000', 'D_center_50%_lhs_lecs']
+validation_tags = ['sgt50', 'validation1000', 'mem_center_100%_lhs_lecs']
 
 if load_params:
     with open(params_load_path, 'r') as f:
@@ -66,9 +68,9 @@ gauss.save_fig = save_fig
 gauss.save_path = save_path
 
 @profile
-def get_observable(lecs):
+def get_observable(lecs, energies):
     """Wrapper function to measure time with memory profiler."""
-    return nsopt.get_nsopt_observable(lecs)
+    return nsopt.get_nsopt_observable(energies,LECM=lecs)
 
 @profile
 def train_gp_model(train_obs, train_lecs):
@@ -98,21 +100,24 @@ if continue_generate:
     param.nbr_of_samples = samples
     if lec_lhs == 'lhs':
         print('lhs')
-        lecs = param.create_lhs_lecs()
+        lecs = param.create_lhs_lecs(energy_interval=energy)
+        energies = lecs[:,-1]
+        lecs = lecs[:,0:-1]]
     elif lec_lhs == 'gaussian':
         print('gaussian')
         lecs = param.create_gaussian_lecs()
     elif lec_lhs == 'random_uniform':
         print('random_uniform')
         lecs = param.create_random_uniform_lecs()
+        lecs = 
     elif lec_lhs == '1dof':
         print('1dof lec index: ' + str(lec_index))
         lecs = param.create_lecs_1dof()
     print(generate_tags)
-    observables = get_observable(lecs)
+    observables = get_observable(energies, lecs)
     
     for i in xrange(samples):
-        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energy, LECs=lecs[i])
+        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energies[i], LECs=lecs[i])
 
 if process_data:
     if dm.num_matches(training_tags) <= 0 or dm.num_matches(validation_tags) <= 0:
@@ -142,6 +147,8 @@ if process_data:
     if load_params:
         gauss.load_model_parameters(train_obs, train_lecs, params_load_path)
     else:
+        # Add energy to lecs for training
+        train_lecs = np.hstack(train_lecs, train_energy)
         train_gp_model(train_obs, train_lecs)
 
     if save_params:
@@ -161,6 +168,8 @@ if process_data:
     val_energy = np.delete(val_energy, 0, 0)
     val_lecs = np.delete(val_lecs, 0,0)
 
+    # Add energy to lecs for validation
+    val_lecs = np.hstack(val_lecs, val_energy)
     mod_obs, mod_var = calculate_valid(val_lecs)
             
     gauss.plot_predicted_actual(mod_obs, val_obs, mod_var,

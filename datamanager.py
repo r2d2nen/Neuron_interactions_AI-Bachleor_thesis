@@ -171,7 +171,7 @@ class Data():
         self.observable = Meas.observable
         self.energy = Meas.energy
         self.hbar_omega = Meas.h_omega
-        self.n_max = int(Meas.n_max)    #Dirty hack
+        #self.n_max = int(Meas.n_max)    #Dirty hack
         self.LECs = Meas.LECs
 
     def __repr__(self):
