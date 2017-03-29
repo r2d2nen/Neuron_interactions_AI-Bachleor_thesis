@@ -59,7 +59,7 @@ class Gaussfit:
             print 'Kernel not recognized or not implemented'
         
         
-    def populate_gp_model(self, observable, lecs, energy=None, rescale=False):
+    def populate_gp_model(self, observable, lecs, energy=None, rescale=False, fixvariance=0):
         """Creates a model based on given data and kernel.
         
         Args:
@@ -76,6 +76,12 @@ class Gaussfit:
 
         observable.transpose()
         self.model = GPRegression(lecs, observable, self.kernel)
+
+        self.model.Gaussian_noise.variance.unconstrain()
+
+        self.model.Gaussian_noise.variance = fixvariance
+
+        self.model.Gaussian_noise.variance.fix()
 
     def optimize(self, num_restarts=1):
         """Optimize the model."""
@@ -145,12 +151,14 @@ class Gaussfit:
         Data, = plt.plot(Yvalid, Ymodel, '.', ms=0.5, zorder=3, label="Data points")
         plt.errorbar(Yvalid, Ymodel, yerr=2*sigma, fmt='none', alpha=0.5, zorder=1, label="Error bars")
         
-        plt.xlabel('Simulated value [mb]')
-        plt.ylabel('Emulated value [mb]')
+        plt.xlabel('Simulated value [\si{\milli\barn}]')
+        plt.ylabel('Emulated value [\si{\milli\barn}]')
         plt.grid(True)
         
-        # Create a legend for the line.
+        modelError = str(self.get_model_error(Ymodel, Yvalid))
         
+        
+        # Create a legend for the line.
         first_legend = plt.legend(handles=[Expected, Data], loc=4) #["Expected", "Data points"],
         #third_legend = plt.legend(handles=[Error], loc=4)
 
@@ -164,6 +172,9 @@ class Gaussfit:
         #Last fix of tikz with script.
         from fix_tikz import EditText
         edit = EditText()
+        #adding tikz file info
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '% This file was created by matplotlib2tikz v0.6.3.', '%  ' + self.save_path + '\n%  ' + self.tags_to_title(train_tags, val_tags) + '\n%  Model Error: ' + modelError)
+        
         #adding legend
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\end{axis}', '\\legend{Data,Expected}\n\\end{axis}')
         #adding forget plot
@@ -172,10 +183,10 @@ class Gaussfit:
 
     def get_model_error(self, Ymodel, Yvalid):
         """A measure of how great the model's error is compared to validation points
-        Currently uses the average relative error
+        Currently uses the rms of the relative error
         """
         #Sum of a numpy array returns another array, we use the first (and only) element
-        return (sum(abs((Ymodel-Yvalid)/Yvalid))/np.shape(Ymodel)[0])[0]
+        return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/Yvalid)))
 
 
 
