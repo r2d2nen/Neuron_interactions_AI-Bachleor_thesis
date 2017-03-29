@@ -102,7 +102,7 @@ if continue_generate:
         print('lhs')
         lecs = param.create_lhs_lecs(energy_interval=energy)
         energies = lecs[:,-1]
-        lecs = lecs[:,0:-1]]
+        lecs = lecs[:,0:-1]
     elif lec_lhs == 'gaussian':
         print('gaussian')
         lecs = param.create_gaussian_lecs()
