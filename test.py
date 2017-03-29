@@ -68,7 +68,7 @@ gauss.save_fig = save_fig
 gauss.save_path = save_path
 
 @profile
-def get_observable(lecs, energies):
+def get_observable(energies, lecs):
     """Wrapper function to measure time with memory profiler."""
     return nsopt.get_nsopt_observable(energies,LECM=lecs)
 
@@ -109,7 +109,6 @@ if continue_generate:
     elif lec_lhs == 'random_uniform':
         print('random_uniform')
         lecs = param.create_random_uniform_lecs()
-        lecs = 
     elif lec_lhs == '1dof':
         print('1dof lec index: ' + str(lec_index))
         lecs = param.create_lecs_1dof()
