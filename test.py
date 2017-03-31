@@ -153,7 +153,7 @@ if process_data:
 
     if save_params:
         gauss.save_model_parameters(params_save_path, training_tags, kernel, LEC_LENGTH,
-                                    lengthscale, multi_dim)
+                                    lengthscale, multi_dim, rescale_data)
 
     val_obs = np.array([0])
     val_energy = np.array([0])
