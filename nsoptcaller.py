@@ -170,8 +170,6 @@ Energy is a vector with energies associated with each sample
             self.remove_finished_process(process_list)
             time.sleep(1)
 
-        print(observables)
-
         tmp_obs = np.asarray(observables)
         trimmed_obs = np.zeros(len(tmp_obs))
         for row in xrange(len(tmp_obs)):

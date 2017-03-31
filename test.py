@@ -26,7 +26,7 @@ load_params = True
 params_load_path = '/net/data1/ml2017/gpyparams/Matern52_validation_3000_memcenter100lhs_sgt50_multidim.pickle'
 
 # Generation parameters. Set these to generate different data
-samples = 1000
+samples = 40
 lec_lhs = 'lhs'   # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = '' #With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1 # 0 to 1, percentage of total interval
@@ -114,9 +114,10 @@ if continue_generate:
         lecs = param.create_lecs_1dof()
     print(generate_tags)
     observables = get_observable(energies, lecs)
-    
+
     for i in xrange(samples):
-        dm.insert(tags=generate_tags, observable=observables[i][0], energy=energies[i], LECs=lecs[i])
+        print(observables[i])
+        dm.insert(tags=generate_tags, observable=observables[i], energy=energies[i], LECs=lecs[i])
 
 if process_data:
     if dm.num_matches(training_tags) <= 0 or dm.num_matches(validation_tags) <= 0:
