@@ -181,11 +181,14 @@ class Gaussfit:
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks]', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks, forget plot]')
         
 
-    def get_model_error(self, Ymodel, Yvalid):
+    def get_model_error(self, Ymodel, Yvalid, alt=False):
         """A measure of how great the model's error is compared to validation points
         Currently uses the rms of the relative error
         """
         #Sum of a numpy array returns another array, we use the first (and only) element
+        if alt:
+            return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/np.std(Yvalid))))
+        
         return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/Yvalid)))
 
 
@@ -255,14 +258,14 @@ class Gaussfit:
         plt.show()
 
     def save_model_parameters(self, savepath, traintags, kernel, LEC_LENGTH, lengthscale,
-                                  multidim):
+                                  multidim, rescale):
         "Saves GPy model hyperparameters as a .pickle file"""
 
         params = self.model.param_array
 
         if (savepath.endswith(".pickle")) and (not os.path.isfile(savepath)):
             with open(savepath, 'w') as f:
-                pickle.dump([params, kernel, traintags, LEC_LENGTH, lengthscale, multidim], f)
+                pickle.dump([params, kernel, traintags, LEC_LENGTH, lengthscale, multidim,rescale], f)
         elif (not savepath.endswith(".pickle")):
             print "*****ERROR***** Model properties must be saved as .pickle file *****ERROR*****"
         elif os.path.isfile(savepath):
@@ -273,13 +276,20 @@ class Gaussfit:
 
         Xlearn.transpose()
         Ylearn.transpose()
-
+        
         with open(loadpath, 'r') as f:
-            params, kernel, traintags, LEC_LENGTH, lengthscale, multi_dim = pickle.load(f)
+            filecontents = pickle.load(f)
+            if len(filecontents)==6:
+                params, kernel, traintags, LEC_LENGTH, lengthscale, multi_dim = filecontents
+                rescale = False
+            elif len(filecontents)==7:
+                params, kernel, traintags, LEC_LENGTH, lengthscale, multi_dim,rescale = filecontents
 
         self.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
                            multi_dim=multi_dim)
-        
+
+        if rescale:
+            (Xlearn,Ylearn)=self.rescale(Xlearn, Ylearn)
         m_load = GPRegression(Xlearn, Ylearn, self.kernel, initialize=False)
         m_load.update_model(False)
         m_load.initialize_parameter()
