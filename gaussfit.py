@@ -181,7 +181,7 @@ class Gaussfit:
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks]', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks, forget plot]')
         
         #Making transformable to PNG
-        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '%  Model Error: ' + modelError, '\documentclass{standalone}\n\usepackage{tikz}\n\usepackage{pgfplots}\n\n\\begin{document}')
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '%  Model Error: ' + modelError, '\documentclass{standalone}\n\usepackage{tikz}\n\usepackage{pgfplots}\n\usepackage{siunitx}\n\n\\begin{document}')
         
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\end{tikzpicture}', '\end{tikzpicture}\n\end{document}')
         
