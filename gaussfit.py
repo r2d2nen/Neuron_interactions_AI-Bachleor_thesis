@@ -180,6 +180,11 @@ class Gaussfit:
         #adding forget plot
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks]', '\\addplot [lightgray!80.0!black, opacity=0.5, mark=-, mark size=3, mark options={solid}, only marks, forget plot]')
         
+        #Making transformable to PNG
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '%  Model Error: ' + modelError, '\documentclass{standalone}\n\usepackage{tikz}\n\usepackage{pgfplots}\n\n\\begin{document}')
+        
+        edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '\end{tikzpicture}', '\end{tikzpicture}\n\end{document}')
+        
 
     def get_model_error(self, Ymodel, Yvalid, alt=False):
         """A measure of how great the model's error is compared to validation points
