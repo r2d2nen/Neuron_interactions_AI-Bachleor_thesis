@@ -1,7 +1,10 @@
 import numpy as np
 from GPy.kern import RBF, Exponential, Matern32, Matern52
 from GPy.models import GPRegression
+from GPy.plotting.gpy_plot.kernel_plots import plot_covariance, plot_ARD
 from matplotlib import pyplot as plt
+from matplotlib2tikz import save as tikz_save
+from fix_tikz import EditText
 from scipy.spatial.distance import cdist
 from math import sqrt
 from matplotlib import style
@@ -162,15 +165,12 @@ class Gaussfit:
         first_legend = plt.legend(handles=[Expected, Data], loc=4) #["Expected", "Data points"],
         #third_legend = plt.legend(handles=[Error], loc=4)
 
-        from matplotlib2tikz import save as tikz_save
-        
         #The folowing saves the file to folder as well as adding 3 rows. The "clip mode=individual" was a bit tricky to add so this is the ugly way to solve it.
         tikz_save(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', 
         figureheight = '\\textwidth*0.8,\nclip mode=individual',
         figurewidth = '\\textwidth*0.8')
         
         #Last fix of tikz with script.
-        from fix_tikz import EditText
         edit = EditText()
         #adding tikz file info
         edit.fix_file(self.save_path + self.tags_to_title(train_tags, val_tags) + '_predicted_actual.tex', '% This file was created by matplotlib2tikz v0.6.3.', '%  ' + self.save_path + '\n%  ' + self.tags_to_title(train_tags, val_tags) + '\n%  Model Error: ' + modelError)
@@ -261,6 +261,21 @@ class Gaussfit:
         plt.plot(Xvalid, Ymodel, 'bo')
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
+
+    def plot_kernel(self, lec_idx):
+        plot_covariance(self.kernel, visible_dims=lec_idx)
+        plt.show()
+
+    def plot_lecs(self, center, intervals):
+        for i in range(16):
+            plt.subplot(4, 4, i + 1)
+            x = np.linspace(center[0][i]-intervals[i], center[0][i]+intervals[i], num=200)
+            lecs = np.tile(center[0], (200, 1))
+            lecs[:,i] = x
+            obs, _ = self.calculate_valid(lecs)
+            plt.plot(x, obs)
+        plt.show()
+        
 
     def save_model_parameters(self, savepath, traintags, kernel, LEC_LENGTH, lengthscale,
                                   multidim, rescale):
