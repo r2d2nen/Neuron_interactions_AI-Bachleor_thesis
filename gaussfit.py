@@ -285,6 +285,8 @@ class Gaussfit:
             elif len(filecontents)==7:
                 params, kernel, traintags, LEC_LENGTH, lengthscale, multi_dim,rescale = filecontents
 
+        print(params)
+        print(LEC_LENGTH)
         self.set_gp_kernel(kernel=kernel, in_dim=LEC_LENGTH, lengthscale=lengthscale,
                            multi_dim=multi_dim)
 
@@ -295,13 +297,11 @@ class Gaussfit:
         m_load.initialize_parameter()
         m_load[:] = params
         m_load.update_model(True)
-
         self.model = m_load
 
+    def plot_energy_curve(self, mod_obs, val_obs, mod_var, val_energy):
         
-
-
-
-        
-        
+        plt.plot(val_energy,val_obs, 'x')
+        plt.plot(val_energy, mod_obs,'o')
+        plt.show()
         

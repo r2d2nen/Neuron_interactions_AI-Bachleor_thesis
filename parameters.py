@@ -187,16 +187,12 @@ class Parameters():
             lec_samples[:,-1] = energy_samples
             
         else:
-            lec_samples = self.replace_superflous_lecs(lec_samples)
-        
             lec_samples = pydoe.lhs(self.nbr_of_lecs, samples=self.nbr_of_samples)
             lec_min = self.center_lecs - self.half_volume_length
             lec_samples = 2*np.multiply(self.half_volume_length, lec_samples)
 
             lec_samples += lec_min
 
-        lec_samples = self.replace_superflous_lecs(lec_samples)
-        
         return lec_samples
         
     def create_random_uniform_lecs(self):
@@ -224,7 +220,6 @@ class Parameters():
         onedof_lec = np.linspace(minval, maxval, self.nbr_of_samples)
 
         lec_samples[:,lecindex] = onedof_lec
-        lec_samples = self.replace_superflous_lecs(lec_samples)
         
         return lec_samples
 
@@ -266,8 +261,6 @@ class Parameters():
         lec_samples = 2*np.multiply(self.half_volume_length, points)
         lec_samples += lec_min
 
-        lec_samples = self.replace_superflous_lecs(lec_samples)
-        
         return lec_samples
 
     def center_of_lecs_interval(self):
@@ -279,7 +272,8 @@ class Parameters():
             value = self.lecs_dict[lec]
             center_of_interval[index] = value[0] + value[2]/2
         return center_of_interval
-        
+
+    #### PLEASE DON'T DO THIS. CHILDREN WILL SUFFER BECAUSE GP:S WILL GO TO ZERO
     def replace_superflous_lecs(self, lec_samples):
         """Removed C_E and C_D since they do nothing."""
         lec_samples[:,11] = self.center_lecs[0,11]
