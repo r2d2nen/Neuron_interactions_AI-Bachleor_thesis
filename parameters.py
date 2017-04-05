@@ -140,12 +140,13 @@ class Parameters():
 
     
     """Create a set of lecs with a normal distribution in every dimension.
-    Default is sigma=1/3 of interval
-    Also cuts off the outliers outside of the volume, meaning you will get fewer rows than suspected
+    Default is sigma=0.5 of interval
+    Generated double the amount of points, and then cuts out everything outside of the volume.
+    You should get the exact number of points you wanted in pretty much all cases
     """
-    def create_gaussian_lecs(self):
-        lec_samples = np.random.normal(loc=0, scale=0.3,
-                size=(self.nbr_of_samples, self.nbr_of_lecs))
+    def create_gaussian_lecs(self, scale=0.5):
+        lec_samples = np.random.normal(loc=0, scale=scale,
+                size=(2 * self.nbr_of_samples, self.nbr_of_lecs))
         delete_rows = []
         for i, row in enumerate(lec_samples):
             for value in row:
@@ -153,6 +154,13 @@ class Parameters():
                     delete_rows.append(i)
                     break
         lec_samples = np.delete(lec_samples, delete_rows, axis=0)
+        #Delete all rows after 1000
+        delete_rows = []
+        if np.shape(lec_samples)[0] > 1000:
+            for i in range(1000, np.shape(lec_samples)[0]):
+                delete_rows.append(i)
+            lec_samples = np.delete(lec_samples, delete_rows, axis=0)
+
         lec_samples = np.multiply(self.half_volume_length, lec_samples)
         lec_samples += self.center_lecs
 
