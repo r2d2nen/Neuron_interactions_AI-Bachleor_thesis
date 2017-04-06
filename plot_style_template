@@ -1,0 +1,27 @@
+def generate_and_save_tikz(self, fileName, save_path):
+        fig = plt.figure()
+        style.use('seaborn-bright')
+        
+        #****************Insert the ploting*********************
+        
+        
+        plt.xlabel('X-label')   #****Edit****
+        plt.ylabel('Y'label')   #****Edit****
+        plt.grid(True)
+
+        from matplotlib2tikz import save as tikz_save
+        
+        #The folowing saves the file to folder as well as adding 3 rows. 
+        #The "clip mode=individual" was a bit tricky to add so this is the ugly way to solve it.
+        tikz_save(save_path + '/' + fileName, 
+        figureheight = '\\textwidth*0.8,\nclip mode=individual',
+        figurewidth = '\\textwidth*0.8')
+        
+        #Last fix of tikz.
+        from fix_tikz import EditText
+        edit = EditText()
+        #Making transformable to PNG
+        edit.fix_file(save_path + '/' + fileName, '% This file was created by matplotlib2tikz v0.6.3.', '\documentclass{standalone}\n\usepackage{tikz}\n\usepackage{pgfplots}\n\usepackage{siunitx}\n\n\\begin{document}')
+        
+        edit.fix_file(save_path + '/' + fileName, '\end{document}', '')
+        edit.fix_file(save_path + '/' + fileName, '\end{tikzpicture}', '\end{tikzpicture}\n\end{document}')
