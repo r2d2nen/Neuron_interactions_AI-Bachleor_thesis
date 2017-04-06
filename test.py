@@ -10,8 +10,8 @@ import pickle
 #### BE CERTAIN TO SET THE TAGS AND WHICH LEC GENERATING METHOD YOU WANT TO USE!
 
 #Do we want to generate new samples? And if so, how many? SET TAGS 
-generate_data = False
-process_data = True
+generate_data = True
+process_data = False
 rescale_data = False
 
 save_fig = False     
@@ -24,7 +24,7 @@ params_save_path = '/net/data1/ml2017/gpyparams/E_curve_1_RBF500.pickle'
 params_load_path = '/net/data1/ml2017/gpyparams/energy1_150_multidim/RBF_training_2500_100lhs_sgt1_150_multidim.pickle'
 
 # Generation parameters. Set these to generate different data
-samples = 500     # Number of datapoints
+samples = 1000     # Number of datapoints
 lec_sampling = 'lhs'  # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = ''   # With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1     # 0 to 1, percentage of total interval
@@ -32,7 +32,7 @@ lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your
 
 #THIS ONLY WORKS FOR LHS LECS AS OF NOW. (STASR, STOP)
 # If start and stop is the same. Training is done wiht only lecs as parameters and not anything else
-energy = (1, 150)
+energy = (50, 50)
 
 LEC_LENGTH = 16
 
@@ -43,7 +43,7 @@ multi_dim = True #Use multi-dimensional lengthscale
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
 generate_tags = ['sgt' + str(energy[0]) + '-' +  str(energy[1]), 'training' + str(samples),
-                 'new_E_curve_test' + str(lec_sampling) + str(lec_index)]
+                 'E_const' + str(lec_sampling) + str(lec_index)]
 
 
 # Which tags to read from database i we process data? Set these manually
@@ -115,7 +115,7 @@ if continue_generate:
             energies = lecs[:,-1]
             lecs = lecs[:,0:-1]
         else:
-            energies = np.full((samples, 1), energy[0]) # Need list of energies anyway for nsoptcaller
+            energies = np.linspace(energy[0], energy[0], samples) # Need list of energies anyway for nsoptcaller
             lecs = param.create_lhs_lecs()
     elif lec_sampling == 'gaussian':
         print('gaussian')
