@@ -262,14 +262,21 @@ class Gaussfit:
         plt.plot(Xvalid, Yvalid, 'rx')
         plt.show()
 
+    """Plots the kernel function of lec index"""
     def plot_kernel(self, lec_idx):
         plot_covariance(self.kernel, visible_dims=lec_idx)
         plt.show()
 
-    def plot_lecs(self, center, intervals):
+    """Plots a slice of of each lec through the center point""" 
+    def plot_lecs(self, center, intervals, energy=None):
+        if energy is not None:
+            center = np.append(center, energy).reshape(1, 17)
+            intervals = np.append(intervals, 0).reshape(1, 17)
+        else:
+            intervals = np.append(intervals, 0).reshape(1, 16)
         for i in range(16):
             plt.subplot(4, 4, i + 1)
-            x = np.linspace(center[0][i]-intervals[i], center[0][i]+intervals[i], num=200)
+            x = np.linspace(center[0][i]-intervals[0][i], center[0][i]+intervals[0][i], num=200)
             lecs = np.tile(center[0], (200, 1))
             lecs[:,i] = x
             obs, _ = self.calculate_valid(lecs)
