@@ -147,7 +147,7 @@ class Gaussfit:
         
     def generate_and_save_tikz(self, Ymodel, Yvalid, Variance, train_tags, val_tags):
         fig = plt.figure()
-        style.use('grayscale')
+        style.use('seaborn-bright')
         
         sigma = np.sqrt(Variance)
         Expected, = plt.plot([max(Yvalid), min(Yvalid)], [max(Yvalid), min(Yvalid)], '-', linewidth=2, zorder=10, ms = 19, label="Expected")
