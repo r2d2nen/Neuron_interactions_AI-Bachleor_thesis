@@ -267,7 +267,8 @@ class Gaussfit:
         plot_covariance(self.kernel, visible_dims=lec_idx)
         plt.show()
 
-    """Plots a slice of of each lec through the center point""" 
+    """Plots a slice of of each lec through the center point
+    Set energy to None if energy is not a parameter in your model""" 
     def plot_lecs(self, center, intervals, energy=None):
         if energy is not None:
             center = np.append(center, energy).reshape(1, 17)
