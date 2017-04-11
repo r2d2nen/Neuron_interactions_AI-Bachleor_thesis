@@ -191,8 +191,8 @@ class Gaussfit:
         Currently uses the rms of the relative error
         """
         #Sum of a numpy array returns another array, we use the first (and only) element
-        if alt:
-            return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/np.std(Yvalid))))
+        #if alt:
+        #    return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/np.std(Yvalid))))
         
         return np.sqrt(np.mean(np.square((Ymodel-Yvalid)/Yvalid)))
 
