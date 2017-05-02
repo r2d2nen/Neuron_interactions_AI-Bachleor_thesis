@@ -208,13 +208,13 @@ def generate_and_save_tikz(self, fileName, save_path, importantList):
         meanValu = [[]]
         
         #RBF
-        meanValu[0] =importantList[0][0][:] + importantList[0][1][:] + importantList[0][2][:]
+        meanValu[0] =(importantList[0][0][:] + importantList[0][1][:] + importantList[0][2][:])/3
         #Exponential
-        meanValu[1] =importantList[1][0][:] + importantList[1][1][:] + importantList[1][2][:]
+        meanValu[1] =(importantList[1][0][:] + importantList[1][1][:] + importantList[1][2][:])/3
         #Matern32
-        meanValu[2] =importantList[2][0][:] + importantList[2][1][:] + importantList[2][2][:]
+        meanValu[2] =(importantList[2][0][:] + importantList[2][1][:] + importantList[2][2][:])/3
         #Matern52
-        meanValu[3] =importantList[3][0][:] + importantList[3][1][:] + importantList[3][2][:]
+        meanValu[3] =(importantList[3][0][:] + importantList[3][1][:] + importantList[3][2][:])/3
         xVal = range(250,3000,250)
         
         for i in range(0,3):
