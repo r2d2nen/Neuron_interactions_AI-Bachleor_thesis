@@ -7,7 +7,6 @@ def generate_and_save_tikz(self, fileName, save_path):
         
         plt.xlabel('X-label')   #****Edit****
         plt.ylabel('Y-label')   #****Edit****
-        plt.grid(True)
 
         from matplotlib2tikz import save as tikz_save
         
