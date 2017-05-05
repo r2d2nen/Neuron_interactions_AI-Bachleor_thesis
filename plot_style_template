@@ -17,4 +17,7 @@ def generate_and_save_tikz(self, fileName, save_path):
         figureheight = '\\textwidth*0.8,\nclip mode=individual',
         figurewidth = '\\textwidth*0.8')
 
+
+
+
       
