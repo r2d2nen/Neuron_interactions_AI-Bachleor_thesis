@@ -1,5 +1,5 @@
 #!/bin/bash
-kernels=('RBF' 'Matern52')
+kernels=('Matern52' 'Exponential')
 for j in {0..1..1}
 do
     echo ${kernels[$j]}
@@ -10,11 +10,11 @@ do
 	number=$i
 	echo "i is now $i of 3000"
 	sed -i "s/training[[:digit:]][[:digit:]]*/training$number/g" test.py
-	sed -i "s;params_save_path = [[:print:]]*;params_save_path = '/net/data1/ml2017/gpyparams/${kernels[$j]}_training_"$number"_100lhs_sgt1_150_multidim.pickle';g" test.py
-	#sed -i "s/samples = [[:digit:]][[:digit:]]*/samples = $number/g" test_backup.py
-	mprof run test.py
+	sed -i "s;params_save_path = [[:print:]]*;params_save_path = '/net/data1/ml2017/gpyparams/E_curve_gpy/${kernels[$j]}_E_curve_training_"$number"_lhs_sgt1_150_multidim.pickle';g" test.py
+	sed -i "s/samples = [[:digit:]][[:digit:]]*/samples = $number/g" test.py
+	python test.py
 	
-	rm mprof*.dat
+	#rm mprof*.dat
 	
     done 
 done

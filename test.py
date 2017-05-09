@@ -20,11 +20,11 @@ save_params = False # set True to save generated GPy model hyperparameters,
                     # file. Saves objecs in .pickle with with pickle module.
 load_params = False  # set True to load GPy model from file 
 save_fig_path = '/net/data1/ml2017/presentation/'
-params_save_path = '/net/data1/ml2017/gpyparams/E_curve_1_RBF500.pickle'
+params_save_path = '/net/data1/ml2017/gpyparams/E_curve_gpy/Matern52_E_curve_training_500_lhs_sgt1_150_multidim.pickle'
 params_load_path = '/net/data1/ml2017/gpyparams/energy1_150_multidim/RBF_training_2500_100lhs_sgt1_150_multidim.pickle'
 
 # Generation parameters. Set these to generate different data
-samples = 1000     # Number of datapoints
+samples = 500     # Number of datapoints
 lec_sampling = 'lhs'  # Set 'lhs', 'gaussian', 'random_uniform', '1dof'
 lec_index = ''   # With 1dof, which lec should we change integer 0 to 15, if not 1dof use empty string
 interval = 1     # 0 to 1, percentage of total interval
@@ -32,18 +32,18 @@ lec_center = 'center_of_interval' # None --> N2LOsim500_290 optimum, or add your
 
 #THIS ONLY WORKS FOR LHS LECS AS OF NOW. (STASR, STOP)
 # If start and stop is the same. Training is done wiht only lecs as parameters and not anything else
-energy = (50, 50)
+energy = (1, 50)
 
 LEC_LENGTH = 16
 
 #GPy parameters
-kernel = 'RBF'
+kernel = 'Matern52'
 lengthscale = 1.
 multi_dim = True #Use multi-dimensional lengthscale
 
 # ONLY CHANGE training/validation and 'D_center_' to whatever your lec_center is and who you are
 generate_tags = ['sgt' + str(energy[0]) + '-' +  str(energy[1]), 'training' + str(samples),
-                 'E_const' + str(lec_sampling) + str(lec_index)]
+                 'testing' + str(lec_sampling) + str(lec_index)]
 
 
 # Which tags to read from database i we process data? Set these manually

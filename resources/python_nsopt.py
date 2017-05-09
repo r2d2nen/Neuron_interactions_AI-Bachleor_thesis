@@ -59,6 +59,10 @@ class PythonNsopt(object):
             self.nsopt.chp_ini_read_line(self.nsopt.cfast_ini_get(), b".",
                                          b"Elist=1 " + str(energy), self.ininow)
 
+        # Test for fix for eft_nu error
+        self.nsopt.chp_ini_read_line(self.nsopt.cfast_ini_get(), b".",
+                                     b"eft_nu=-1.0 ", self.ininow)
+        
         self.nsopt.program_initialization_()
 
         self.res_nr = c.c_int(0) # Will hold number of residuals
