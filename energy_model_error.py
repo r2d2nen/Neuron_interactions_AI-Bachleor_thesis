@@ -18,8 +18,8 @@ from matplotlib import pyplot as plt
 from matplotlib import style
 
 
-# The kernels we have trained fro
-kernels = ['RBF', 'Matern52']
+# The kernels we have trained for
+kernels = ['RBF', 'Exponential', 'Matern32', 'Matern52']
 
 gauss = Gaussfit()
 dm = Datamanager(echo=False)
@@ -31,14 +31,16 @@ def calculate_valid(val_lecs):
 
 LEC_LENGTH = 16
 RBF_error = []
+Exponential_error = []
+Matern32_error = []
 Matern52_error = []
-samples = range(250, 3001, 250)
+samples = range(100, 3001, 100)
 
 # Kernel loop
 for kernel in kernels:
-    for training_number in xrange(250, 3001, 250):
+    for training_number in xrange(100, 3001, 100):
         
-        params_load_path = '/net/data1/ml2017/gpyparams/E_curve_gpy/' + kernel + '_E_curve_training_' + str(training_number) + '_lhs_sgt1_150_multidim.pickle'
+        params_load_path = '/net/data1/ml2017/gpyparams/valid100-3000/' + kernel + '_validation_' + str(training_number) + '_memcenter100lhs_sgt50.pickle'
 
         with open(params_load_path, 'r') as f:
             tagsidx = 2
@@ -60,8 +62,6 @@ for kernel in kernels:
         train_obs = np.delete(train_obs, 0, 0)
         train_energy = np.delete(train_energy, 0, 0)
         train_lecs = np.delete(train_lecs, 0, 0)
-
-        train_lecs = np.hstack((train_lecs, train_energy))
         
         gauss.load_model_parameters(train_obs, train_lecs, params_load_path)
 
@@ -69,9 +69,9 @@ for kernel in kernels:
 
 
         # Loop over all validation
-        for validation_number in xrange(1, 51):
+        for validation_number in xrange(1, 2):
 
-            validation_tags = ['sgt1-150', 'validation300','single_lec_E_curve' + str(validation_number) + '/50lhs']
+            validation_tags = ['sgt50', 'training3000','mem_center_100%_lhs_lecs']
 
             val_obs = np.array([0])
             val_energy = np.array([0])
@@ -87,8 +87,6 @@ for kernel in kernels:
             val_energy = np.delete(val_energy, 0, 0)
             val_lecs = np.delete(val_lecs, 0,0)
 
-            val_lecs = np.hstack((val_lecs, val_energy))
-
             mod_obs, mod_var = calculate_valid(val_lecs)
 
             model_error += gauss.get_model_error(mod_obs, val_obs)
@@ -96,13 +94,23 @@ for kernel in kernels:
             print('Completed ' + kernel + ' training ' + str(training_number) + ' validation ' + str(validation_number) + '/50')
 
         if kernel == 'RBF':
-            RBF_error.append(model_error/50)
+            RBF_error.append(model_error)
+            
+        if kernel == 'Exponential':
+            Exponential_error.append(model_error)
+
+        if kernel == 'Matern32':
+            Matern32_error.append(model_error)
 
         if kernel == 'Matern52':
-            Matern52_error.append(model_error/50)
+            Matern52_error.append(model_error)
+        
 
 print(RBF_error)
+print(Exponential_error)
+print(Matern32_error)
 print(Matern52_error)
+
 
 # fig = plt.figure()
 # style.use('seaborn-bright')
